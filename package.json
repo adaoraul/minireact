@@ -1,0 +1,51 @@
+{
+  "name": "mini-react",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Framework React-like simplificado para aprendizado",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "npx http-server . -p 3000 -o examples/",
+    "serve": "npx http-server . -p 3000",
+    "dev": "npx http-server . -p 3000 -c-1 -o examples/",
+    "build:jsx": "babel examples/jsx/app.jsx --out-file examples/jsx/app.js",
+    "watch:jsx": "babel examples/jsx/app.jsx --out-file examples/jsx/app.js --watch",
+    "docs": "npx jsdoc -c jsdoc.config.json",
+    "docs:serve": "npx http-server ./docs -p 3001 -o",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{js,json,html,md}\"",
+    "format:check": "prettier --check \"**/*.{js,json,html,md}\"",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:verbose": "jest --verbose"
+  },
+  "keywords": [
+    "react",
+    "framework",
+    "educational",
+    "virtual-dom",
+    "fiber",
+    "hooks"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.24.0",
+    "@babel/core": "^7.24.0",
+    "@babel/eslint-parser": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-react": "^7.24.0",
+    "@eslint/js": "^9.0.0",
+    "@testing-library/jest-dom": "^6.6.4",
+    "@types/jest": "^30.0.0",
+    "babel-jest": "^29.7.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.3.0"
+  }
+}

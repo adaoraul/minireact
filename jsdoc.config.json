@@ -1,0 +1,44 @@
+{
+  "source": {
+    "include": ["src"],
+    "includePattern": ".+\\.js$",
+    "excludePattern": "(node_modules|docs)"
+  },
+  "opts": {
+    "destination": "./docs",
+    "recurse": true,
+    "readme": "./README.md",
+    "template": "templates/default",
+    "encoding": "utf8"
+  },
+  "plugins": ["plugins/markdown"],
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": true,
+    "default": {
+      "outputSourceFiles": true,
+      "includeDate": true,
+      "useLongnameInNav": false,
+      "staticFiles": {
+        "include": ["./README.md"]
+      }
+    },
+    "navType": "vertical",
+    "theme": "cerulean",
+    "linenums": true,
+    "collapseSymbols": false,
+    "inverseNav": true,
+    "outputSourcePath": true,
+    "dateFormat": "DD/MM/YYYY",
+    "syntaxTheme": "dark",
+    "sort": "longname, version, since"
+  },
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc", "closure"]
+  },
+  "metadata": {
+    "title": "MiniReact - Documentação",
+    "description": "Framework React-like simplificado para aprendizado"
+  }
+}
