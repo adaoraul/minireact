@@ -2,7 +2,7 @@
   "name": "mini-react",
   "version": "1.0.0",
   "type": "module",
-  "description": "Framework React-like simplificado para aprendizado",
+  "description": "Simplified React-like framework for learning",
   "main": "src/index.js",
   "scripts": {
     "start": "npx http-server . -p 3000 -o examples/",

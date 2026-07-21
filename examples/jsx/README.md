@@ -1,52 +1,52 @@
-# MiniReact com JSX
+# MiniReact with JSX
 
-Este exemplo demonstra como usar JSX com o MiniReact, usando Babel para transpilar a sintaxe JSX para chamadas `createElement`.
+This example demonstrates how to use JSX with MiniReact, using Babel to transpile JSX syntax into `createElement` calls.
 
-## 🚀 Como Executar
+## 🚀 How to Run
 
-### 1. Instalar dependências (se ainda não instaladas)
+### 1. Install dependencies (if not already installed)
 
 ```bash
 npm install
 ```
 
-### 2. Compilar o JSX
+### 2. Compile the JSX
 
 ```bash
 npm run build:jsx
 ```
 
-### 3. Iniciar o servidor
+### 3. Start the server
 
 ```bash
 npm start
 ```
 
-### 4. Abrir no navegador
+### 4. Open in the browser
 
-Navegue para: http://localhost:3000/examples/jsx/
+Navigate to: http://localhost:3000/examples/jsx/
 
-## 📝 Desenvolvimento
+## 📝 Development
 
-Para desenvolvimento com hot-reload manual:
+For development with manual hot-reload:
 
 ```bash
-# Em um terminal, execute o watcher do Babel
+# In one terminal, run the Babel watcher
 npm run watch:jsx
 
-# Em outro terminal, execute o servidor
+# In another terminal, run the server
 npm run dev
 ```
 
-## 🔧 Como Funciona
+## 🔧 How It Works
 
-1. **Código JSX** (`app.jsx`): Escrevemos componentes usando sintaxe JSX familiar
-2. **Babel**: Transpila JSX para JavaScript puro usando `MiniReact.createElement`
-3. **MiniReact**: Nossa implementação processa os elementos e renderiza no DOM
+1. **JSX Code** (`app.jsx`): We write components using familiar JSX syntax
+2. **Babel**: Transpiles JSX to plain JavaScript using `MiniReact.createElement`
+3. **MiniReact**: Our implementation processes the elements and renders them to the DOM
 
-### Configuração do Babel
+### Babel Configuration
 
-O arquivo `.babelrc` configura o Babel para usar nosso `createElement`:
+The `.babelrc` file configures Babel to use our `createElement`:
 
 ```json
 {
@@ -62,9 +62,9 @@ O arquivo `.babelrc` configura o Babel para usar nosso `createElement`:
 }
 ```
 
-### Exemplo de Transpilação
+### Transpilation Example
 
-**JSX Original:**
+**Original JSX:**
 
 ```jsx
 <div className="container">
@@ -73,7 +73,7 @@ O arquivo `.babelrc` configura o Babel para usar nosso `createElement`:
 </div>
 ```
 
-**JavaScript Transpilado:**
+**Transpiled JavaScript:**
 
 ```javascript
 MiniReact.createElement(
@@ -84,23 +84,23 @@ MiniReact.createElement(
 );
 ```
 
-## 🎯 Componentes Demonstrados
+## 🎯 Components Demonstrated
 
-O exemplo inclui todos os mesmos componentes da versão sem JSX:
+The example includes all the same components as the non-JSX version:
 
-- **Counter**: Estado simples com useState
-- **TodoList**: Lista dinâmica com CRUD
-- **Timer**: useEffect e cleanup
-- **DynamicList**: Reconciliação com keys
-- **ProgressBar**: Animações e estado complexo
-- **ControlledForm**: Inputs controlados
-- **NotificationSystem**: useReducer para gerenciamento de estado
-- **ExpensiveCalculation**: useMemo e useCallback
-- **ClassCounter**: Componente de classe
+- **Counter**: Simple state with useState
+- **TodoList**: Dynamic list with CRUD
+- **Timer**: useEffect and cleanup
+- **DynamicList**: Reconciliation with keys
+- **ProgressBar**: Animations and complex state
+- **ControlledForm**: Controlled inputs
+- **NotificationSystem**: useReducer for state management
+- **ExpensiveCalculation**: useMemo and useCallback
+- **ClassCounter**: Class component
 
-## 📚 Diferenças da Versão sem JSX
+## 📚 Differences from the Non-JSX Version
 
-### Versão com JSX (mais limpa e legível):
+### JSX Version (cleaner and more readable):
 
 ```jsx
 function Counter() {
@@ -115,7 +115,7 @@ function Counter() {
 }
 ```
 
-### Versão sem JSX (mais verbosa):
+### Non-JSX Version (more verbose):
 
 ```javascript
 function Counter() {
@@ -132,10 +132,10 @@ function Counter() {
 
 ## 🔍 Debugging
 
-Para ver o código transpilado, abra `app.js` após executar `npm run build:jsx`.
+To see the transpiled code, open `app.js` after running `npm run build:jsx`.
 
-## 📖 Recursos Adicionais
+## 📖 Additional Resources
 
-- [Documentação do MiniReact](../../docs/index.html)
-- [Exemplo sem JSX](../index.html)
-- [Código fonte do MiniReact](../../src/)
+- [MiniReact Documentation](../../docs/index.html)
+- [Example without JSX](../index.html)
+- [MiniReact Source Code](../../src/)

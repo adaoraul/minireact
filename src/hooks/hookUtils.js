@@ -1,37 +1,37 @@
 /**
- * @fileoverview Utilitários para hooks
+ * @fileoverview Utilities for hooks
  * @module hooks/hookUtils
  * @description
- * Funções utilitárias compartilhadas por todos os hooks do MiniReact.
+ * Utility functions shared by all MiniReact hooks.
  *
- * Este módulo fornece funcionalidades essenciais para o sistema de hooks,
- * incluindo gerenciamento de contexto, validação, acesso ao fiber atual
- * e agendamento de re-renderizações.
+ * This module provides essential functionality for the hooks system,
+ * including context management, validation, access to the current fiber,
+ * and scheduling of re-renders.
  *
- * **Funções Principais:**
- * - Acesso ao fiber e índice de hooks atuais
- * - Validação de chamadas de hooks
- * - Recuperação de hooks anteriores
- * - Agendamento de re-renderizações
+ * **Main Functions:**
+ * - Access to the current fiber and hook index
+ * - Validation of hook calls
+ * - Retrieval of previous hooks
+ * - Scheduling of re-renders
  *
- * **Regras dos Hooks (aplicadas aqui):**
- * - Hooks só podem ser chamados em componentes funcionais
- * - Hooks devem ser chamados na mesma ordem em cada render
- * - Hooks não podem ser chamados condicionalmente
+ * **Rules of Hooks (enforced here):**
+ * - Hooks can only be called inside functional components
+ * - Hooks must be called in the same order on every render
+ * - Hooks cannot be called conditionally
  */
 
 /**
- * Obtém o fiber atual de forma segura
+ * Safely gets the current fiber
  *
  * @description
- * Retorna o fiber work-in-progress atual que está sendo processado.
- * Esta função é crítica para o funcionamento dos hooks, pois permite
- * acessar o contexto do componente atual durante a renderização.
+ * Returns the current work-in-progress fiber being processed.
+ * This function is critical for hooks to work, as it provides
+ * access to the current component's context during rendering.
  *
- * @returns {Object|null} Fiber atual ou null se não disponível
+ * @returns {Object|null} Current fiber or null if not available
  *
  * @example
- * // Usado internamente pelos hooks
+ * // Used internally by hooks
  * const fiber = getCurrentFiber();
  * if (fiber) {
  *   fiber.hooks = fiber.hooks || [];
@@ -44,17 +44,17 @@ export function getCurrentFiber() {
   if (typeof window !== 'undefined' && window.minireact?.wipFiber) {
     return window.minireact.wipFiber;
   }
-  
-  // Em ambiente de testes, use import direto
+
+  // In test environments, use the direct import
   return getWipFiber();
 }
 
 /**
- * Obtém o índice do hook atual de forma segura
- * @returns {number} Índice do hook atual
+ * Safely gets the current hook index
+ * @returns {number} Current hook index
  */
 export function getCurrentHookIndex() {
-  // Em ambiente de testes, use o import direto
+  // In test environments, use the direct import
   if (typeof window === 'undefined' || !window.minireact) {
     return getHookIndex() || 0;
   }
@@ -62,10 +62,10 @@ export function getCurrentHookIndex() {
 }
 
 /**
- * Incrementa o índice do hook de forma segura
+ * Safely increments the hook index
  */
 export function incrementHookIndex() {
-  // Em ambiente de testes, use o import direto
+  // In test environments, use the direct import
   if (typeof window === 'undefined' || !window.minireact) {
     return fiberIncrementHookIndex();
   }
@@ -75,21 +75,21 @@ export function incrementHookIndex() {
 }
 
 /**
- * Valida se o hook está sendo chamado dentro de um componente
+ * Validates that the hook is being called within a component
  *
  * @description
- * Garante que hooks sejam chamados apenas dentro do contexto de renderização
- * de um componente funcional. Esta validação previne erros comuns como
- * chamar hooks condicionalmente ou fora de componentes.
+ * Ensures hooks are only called within the rendering context of a
+ * functional component. This validation prevents common mistakes such
+ * as calling hooks conditionally or outside of components.
  *
- * @param {string} hookName - Nome do hook para mensagem de erro
- * @throws {Error} Se não estiver dentro de um componente
+ * @param {string} hookName - Hook name for the error message
+ * @throws {Error} If not called within a component
  *
  * @example
- * // Validação no início de cada hook
+ * // Validation at the start of each hook
  * export function useState(initial) {
  *   validateHookCall('useState');
- *   // ... resto da implementação
+ *   // ... rest of the implementation
  * }
  */
 export function validateHookCall(hookName) {
@@ -100,24 +100,24 @@ export function validateHookCall(hookName) {
 }
 
 /**
- * Obtém o hook anterior de forma segura
- * @param {Object} fiber - Fiber atual
- * @param {number} index - Índice do hook
- * @returns {Object|null} Hook anterior ou null
+ * Safely gets the previous hook
+ * @param {Object} fiber - Current fiber
+ * @param {number} index - Hook index
+ * @returns {Object|null} Previous hook or null
  */
 export function getPreviousHook(fiber, index) {
   return fiber.alternate?.hooks?.[index] || null;
 }
 
 /**
- * Agenda uma re-renderização
+ * Schedules a re-render
  */
 export function scheduleRerender() {
-  // Em ambiente de testes, use o import direto
+  // In test environments, use the direct import
   if (typeof window === 'undefined' || !window.minireact?.scheduleRerender) {
     return fiberScheduleRerender();
   }
-  
+
   if (window.minireact?.scheduleRerender) {
     window.minireact.scheduleRerender();
   }

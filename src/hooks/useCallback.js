@@ -1,54 +1,54 @@
 /**
- * @fileoverview Implementação do hook useCallback
+ * @fileoverview Implementation of the useCallback hook
  * @module hooks/useCallback
  * @description
- * Implementa o hook useCallback para memoização de funções callback.
+ * Implements the useCallback hook for memoizing callback functions.
  *
- * O useCallback é um hook de otimização que retorna uma versão memoizada
- * de uma função callback que só muda se suas dependências mudarem.
- * Isso é útil para evitar re-criação desnecessária de funções e
- * consequentes re-renderizações de componentes filhos.
+ * useCallback is an optimization hook that returns a memoized version
+ * of a callback function that only changes if its dependencies change.
+ * This is useful for avoiding unnecessary re-creation of functions and
+ * the resulting re-renders of child components.
  *
- * **Quando Usar:**
- * - Passar callbacks para componentes filhos otimizados com React.memo
- * - Callbacks que são dependências de outros hooks
- * - Event handlers complexos que não precisam ser recriados
- * - Funções passadas para múltiplos componentes
+ * **When to Use:**
+ * - Passing callbacks to child components optimized with React.memo
+ * - Callbacks that are dependencies of other hooks
+ * - Complex event handlers that don't need to be recreated
+ * - Functions passed to multiple components
  *
- * **Relação com useMemo:**
- * - `useCallback(fn, deps)` é equivalente a `useMemo(() => fn, deps)`
- * - useCallback memoiza a função em si
- * - useMemo memoiza o resultado da função
+ * **Relationship with useMemo:**
+ * - `useCallback(fn, deps)` is equivalent to `useMemo(() => fn, deps)`
+ * - useCallback memoizes the function itself
+ * - useMemo memoizes the result of the function
  *
  * **Performance:**
- * - Evita re-renderizações desnecessárias de componentes filhos
- * - Reduz pressure no garbage collector
- * - Mantém referência estável entre renders
+ * - Avoids unnecessary re-renders of child components
+ * - Reduces garbage collector pressure
+ * - Keeps a stable reference between renders
  */
 
 import { useMemo } from './useMemo.js';
 
 /**
- * Hook para memoizar funções callback
+ * Hook for memoizing callback functions
  *
  * @description
- * Retorna uma versão memoizada da função callback que só muda quando
- * as dependências mudam. Útil para otimizar componentes filhos que
- * dependem de igualdade referencial para evitar re-renderizações.
+ * Returns a memoized version of the callback function that only changes
+ * when the dependencies change. Useful for optimizing child components
+ * that rely on referential equality to avoid re-renders.
  *
  * @template {Function} T
- * @param {T} callback - Função callback a ser memoizada
- * @param {Array<any>} deps - Array de dependências
- * @returns {T} Função callback memoizada
+ * @param {T} callback - Callback function to memoize
+ * @param {Array<any>} deps - Dependency array
+ * @returns {T} Memoized callback function
  *
  * @example
- * // Evitar re-criação de handlers
+ * // Avoid re-creating handlers
  * const handleClick = useCallback(() => {
- *   console.log(`Clicado com valor: ${value}`);
+ *   console.log(`Clicked with value: ${value}`);
  * }, [value]);
  *
  * @example
- * // Callback para componente filho otimizado
+ * // Callback for an optimized child component
  * const TodoItem = React.memo(({ todo, onToggle }) => {
  *   return (
  *     <li onClick={() => onToggle(todo.id)}>
@@ -60,7 +60,7 @@ import { useMemo } from './useMemo.js';
  * function TodoList({ todos }) {
  *   const handleToggle = useCallback((id) => {
  *     dispatch({ type: 'TOGGLE', id });
- *   }, []); // Não recria pois dispatch é estável
+ *   }, []); // Not recreated because dispatch is stable
  *
  *   return todos.map(todo => (
  *     <TodoItem
@@ -72,7 +72,7 @@ import { useMemo } from './useMemo.js';
  * }
  *
  * @example
- * // Função complexa com múltiplas dependências
+ * // Complex function with multiple dependencies
  * const fetchData = useCallback(async () => {
  *   const params = {
  *     page: currentPage,
@@ -84,6 +84,6 @@ import { useMemo } from './useMemo.js';
  * }, [currentPage, selectedFilter, sortOrder]);
  */
 export function useCallback(callback, deps) {
-  // useCallback é essencialmente useMemo para funções
+  // useCallback is essentially useMemo for functions
   return useMemo(() => callback, deps);
 }

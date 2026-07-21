@@ -1,23 +1,23 @@
 /**
- * @fileoverview Implementação do hook useRef do MiniReact
+ * @fileoverview Implementation of the MiniReact useRef hook
  * @module hooks/useRef
  * @description
- * Hook para criar referências mutáveis que persistem durante todo o ciclo de vida
- * do componente. Útil para acessar elementos DOM diretamente e armazenar valores
- * mutáveis que não causam re-renderização quando alterados.
+ * Hook for creating mutable references that persist throughout the
+ * component's lifecycle. Useful for accessing DOM elements directly and
+ * storing mutable values that don't cause a re-render when changed.
  *
- * **Características:**
- * - Retorna um objeto ref com propriedade `current`
- * - A propriedade `current` é mutável
- * - Mudanças em `current` não causam re-renderização
- * - A identidade do objeto ref é preservada entre renders
- * - Útil para referencias DOM e valores mutáveis
+ * **Features:**
+ * - Returns a ref object with a `current` property
+ * - The `current` property is mutable
+ * - Changes to `current` do not trigger a re-render
+ * - The ref object's identity is preserved between renders
+ * - Useful for DOM references and mutable values
  *
- * **Casos de uso:**
- * - Focar elementos DOM
- * - Armazenar valores de instância
- * - Integração com bibliotecas terceiras
- * - Manter referências para timers/intervalos
+ * **Use cases:**
+ * - Focusing DOM elements
+ * - Storing instance values
+ * - Integration with third-party libraries
+ * - Keeping references to timers/intervals
  */
 
 import {
@@ -29,23 +29,23 @@ import {
 } from './hookUtils.js';
 
 /**
- * Hook para criar referências mutáveis
+ * Hook for creating mutable references
  *
  * @description
- * Retorna um objeto ref mutável cuja propriedade `.current` é inicializada
- * com o valor passado (initialValue). O objeto retornado persistirá durante
- * todo o ciclo de vida do componente.
+ * Returns a mutable ref object whose `.current` property is initialized
+ * with the given value (initialValue). The returned object persists
+ * throughout the component's lifecycle.
  *
- * Diferente do state, alterar a propriedade `current` não causa uma
- * re-renderização do componente.
+ * Unlike state, changing the `current` property does not cause the
+ * component to re-render.
  *
- * @param {*} initialValue - Valor inicial para ref.current
- * @returns {Object} Objeto ref com propriedade current mutável
+ * @param {*} initialValue - Initial value for ref.current
+ * @returns {Object} Ref object with a mutable current property
  *
- * @throws {Error} Se chamado fora de um componente funcional
+ * @throws {Error} If called outside of a functional component
  *
  * @example
- * // Referência para elemento DOM
+ * // Reference to a DOM element
  * function InputComponent() {
  *   const inputRef = useRef(null);
  *
@@ -62,47 +62,47 @@ import {
  * }
  *
  * @example
- * // Armazenar valor mutável
+ * // Storing a mutable value
  * function Timer() {
  *   const countRef = useRef(0);
  *
  *   const increment = () => {
  *     countRef.current += 1;
- *     console.log(countRef.current); // Não causa re-render
+ *     console.log(countRef.current); // Does not trigger a re-render
  *   };
  *
  *   return <button onClick={increment}>Count: {countRef.current}</button>;
  * }
  *
  * @example
- * // Múltiplas refs independentes
+ * // Multiple independent refs
  * function MultiRef() {
  *   const ref1 = useRef(1);
  *   const ref2 = useRef(2);
  *
- *   // ref1 e ref2 são completamente independentes
+ *   // ref1 and ref2 are completely independent
  *   ref1.current = 10;
  *   ref2.current = 20;
  * }
  */
 export function useRef(initialValue) {
-  // Valida se está sendo chamado dentro de um componente
+  // Validates that this is being called within a component
   validateHookCall('useRef');
 
-  // Obtém o fiber e índice atual
+  // Gets the current fiber and index
   const fiber = getCurrentFiber();
   const hookIndex = getCurrentHookIndex();
 
-  // Verifica se existe um hook anterior (re-render)
+  // Checks whether a previous hook exists (re-render)
   const previousHook = getPreviousHook(fiber, hookIndex);
 
   let hook;
 
   if (previousHook) {
-    // Re-render: reutiliza o hook existente para preservar a identidade do objeto
+    // Re-render: reuses the existing hook to preserve the object's identity
     hook = previousHook;
   } else {
-    // Primeiro render: cria novo hook com objeto ref
+    // First render: creates a new hook with the ref object
     hook = {
       ref: {
         current: initialValue
@@ -110,17 +110,17 @@ export function useRef(initialValue) {
     };
   }
 
-  // Garante que o array de hooks existe
+  // Ensures the hooks array exists
   if (!fiber.hooks) {
     fiber.hooks = [];
   }
 
-  // Armazena o hook no fiber
+  // Stores the hook on the fiber
   fiber.hooks[hookIndex] = hook;
 
-  // Incrementa o índice para o próximo hook
+  // Increments the index for the next hook
   incrementHookIndex();
 
-  // Retorna o objeto ref (sempre o mesmo objeto entre renders)
+  // Returns the ref object (always the same object between renders)
   return hook.ref;
 }

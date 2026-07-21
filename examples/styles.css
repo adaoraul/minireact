@@ -631,7 +631,7 @@ textarea {
 
 /* Loading state */
 #root:empty::after {
-  content: 'Carregando aplicação...';
+  content: 'Loading application...';
   display: block;
   text-align: center;
   padding: 50px;

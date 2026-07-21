@@ -1,72 +1,72 @@
 /**
- * @fileoverview Criação de elementos do Virtual DOM
+ * @fileoverview Virtual DOM element creation
  * @module vdom/createElement
  * @description
- * Módulo responsável pela criação de elementos virtuais (Virtual DOM) no MiniReact.
+ * Module responsible for creating virtual elements (Virtual DOM) in MiniReact.
  *
- * Este módulo é o ponto de entrada para a criação de toda a árvore de elementos
- * virtuais que representam a interface do usuário. Ele transforma descrições
- * declarativas (JSX ou chamadas diretas) em objetos JavaScript que podem ser
- * eficientemente comparados e convertidos em DOM real.
+ * This module is the entry point for creating the entire tree of virtual
+ * elements that represent the user interface. It transforms declarative
+ * descriptions (JSX or direct calls) into JavaScript objects that can be
+ * efficiently compared and converted into real DOM.
  *
- * **Conceitos Fundamentais:**
- * - **Virtual DOM**: Representação leve da árvore DOM em JavaScript
- * - **Elements**: Objetos imutáveis que descrevem o que deve aparecer na tela
- * - **Props**: Propriedades e atributos passados para elementos
- * - **Children**: Elementos filhos que formam a árvore de componentes
+ * **Core Concepts:**
+ * - **Virtual DOM**: Lightweight representation of the DOM tree in JavaScript
+ * - **Elements**: Immutable objects that describe what should appear on screen
+ * - **Props**: Properties and attributes passed to elements
+ * - **Children**: Child elements that form the component tree
  *
- * **Tipos de Elementos Suportados:**
- * - Elementos HTML nativos (div, span, button, etc.)
- * - Componentes funcionais (funções que retornam elementos)
- * - Componentes de classe (instâncias de Component)
- * - Fragments (múltiplos elementos sem wrapper)
- * - Elementos de texto (strings e números)
+ * **Supported Element Types:**
+ * - Native HTML elements (div, span, button, etc.)
+ * - Functional components (functions that return elements)
+ * - Class components (instances of Component)
+ * - Fragments (multiple elements without a wrapper)
+ * - Text elements (strings and numbers)
  *
- * **Integração com JSX:**
- * Quando usando JSX, o transpilador converte automaticamente:
+ * **JSX Integration:**
+ * When using JSX, the transpiler automatically converts:
  * ```jsx
  * <div className="app">Hello</div>
  * ```
- * Para:
+ * Into:
  * ```javascript
  * createElement('div', { className: 'app' }, 'Hello')
  * ```
  *
  * **Performance:**
- * - Criação de elementos é O(n) onde n é o número de elementos
- * - Objetos são imutáveis, facilitando comparações
- * - Estrutura otimizada para reconciliação eficiente
+ * - Element creation is O(n) where n is the number of elements
+ * - Objects are immutable, making comparisons easier
+ * - Structure optimized for efficient reconciliation
  */
 
 import { TEXT_ELEMENT, Fragment } from '../core/constants.js';
 
 /**
- * Cria um elemento do Virtual DOM
+ * Creates a Virtual DOM element
  *
  * @description
- * Função principal para criar elementos virtuais. Transforma JSX ou
- * chamadas diretas em objetos JavaScript que representam a estrutura
- * DOM desejada. Esta é a base do Virtual DOM.
+ * Main function for creating virtual elements. Transforms JSX or
+ * direct calls into JavaScript objects that represent the desired
+ * DOM structure. This is the foundation of the Virtual DOM.
  *
- * @param {string|Function|Symbol} type - Tipo do elemento (tag HTML, componente ou Fragment)
- * @param {Object|null} props - Propriedades do elemento
- * @param {...any} children - Elementos filhos
- * @returns {Object|Array} Elemento virtual ou array de elementos (para Fragments)
+ * @param {string|Function|Symbol} type - Element type (HTML tag, component, or Fragment)
+ * @param {Object|null} props - Element properties
+ * @param {...any} children - Child elements
+ * @returns {Object|Array} Virtual element or array of elements (for Fragments)
  *
  * @example
- * // Elemento HTML simples
+ * // Simple HTML element
  * const element = createElement('div', { className: 'container' }, 'Hello World');
- * // Resultado: { type: 'div', props: { className: 'container', children: [...] } }
+ * // Result: { type: 'div', props: { className: 'container', children: [...] } }
  *
  * @example
- * // Componente funcional
+ * // Functional component
  * function Button({ label }) {
  *   return createElement('button', null, label);
  * }
  * const element = createElement(Button, { label: 'Click me' });
  *
  * @example
- * // Fragment para múltiplos elementos sem wrapper
+ * // Fragment for multiple elements without a wrapper
  * const elements = createElement(
  *   Fragment,
  *   null,
@@ -75,22 +75,22 @@ import { TEXT_ELEMENT, Fragment } from '../core/constants.js';
  * );
  *
  * @example
- * // Com JSX (após transpilação)
+ * // With JSX (after transpilation)
  * // JSX: <div className="app">Hello</div>
- * // Transpilado para: createElement('div', { className: 'app' }, 'Hello')
+ * // Transpiled to: createElement('div', { className: 'app' }, 'Hello')
  */
 export function createElement(type, props, ...children) {
-  // Achata e filtra children removendo null, undefined e false
+  // Flatten and filter children, removing null, undefined, and false
   const flatChildren = children.flat(Infinity).filter((child) => child != null && child !== false);
 
-  // Tratamento especial para Fragments - retorna apenas os filhos
+  // Special handling for Fragments - returns only the children
   if (type === Fragment || type === 'Fragment') {
     return flatChildren.map((child) =>
       (typeof child === 'object' ? child : createTextElement(child))
     );
   }
 
-  // Retorna elemento virtual
+  // Returns virtual element
   return {
     type,
     props: {
@@ -103,19 +103,19 @@ export function createElement(type, props, ...children) {
 }
 
 /**
- * Cria um elemento de texto virtual
+ * Creates a virtual text element
  *
  * @description
- * Converte strings e números em elementos virtuais de texto.
- * Necessário porque no Virtual DOM tudo precisa ser um objeto
- * com estrutura consistente.
+ * Converts strings and numbers into virtual text elements.
+ * Necessary because in the Virtual DOM everything needs to be an
+ * object with a consistent structure.
  *
- * @param {string|number} text - Texto a ser convertido
- * @returns {Object} Elemento virtual de texto
+ * @param {string|number} text - Text to be converted
+ * @returns {Object} Virtual text element
  *
  * @example
  * const textElement = createTextElement('Hello World');
- * // Resultado: {
+ * // Result: {
  * //   type: 'TEXT_ELEMENT',
  * //   props: {
  * //     nodeValue: 'Hello World',
@@ -134,30 +134,30 @@ function createTextElement(text) {
 }
 
 /**
- * Informações sobre o Virtual DOM
+ * Information about the Virtual DOM
  *
  * @description
- * O Virtual DOM é uma representação em JavaScript da estrutura DOM real.
+ * The Virtual DOM is a JavaScript representation of the real DOM structure.
  *
- * Benefícios:
- * 1. **Performance**: Mudanças são calculadas no Virtual DOM antes de tocar o DOM real
- * 2. **Previsibilidade**: Estado da UI é função dos dados
- * 3. **Abstração**: Desenvolvedores trabalham com abstração mais simples
+ * Benefits:
+ * 1. **Performance**: Changes are calculated in the Virtual DOM before touching the real DOM
+ * 2. **Predictability**: UI state is a function of the data
+ * 3. **Abstraction**: Developers work with a simpler abstraction
  *
- * Estrutura de um elemento virtual:
+ * Structure of a virtual element:
  * ```javascript
  * {
- *   type: 'div',              // Tipo do elemento
- *   props: {                  // Propriedades
+ *   type: 'div',              // Element type
+ *   props: {                  // Properties
  *     className: 'container',
  *     onClick: handleClick,
- *     children: [...]        // Filhos (sempre array)
+ *     children: [...]        // Children (always an array)
  *   }
  * }
  * ```
  *
- * Fluxo:
- * 1. createElement cria Virtual DOM
- * 2. Reconciliação compara com versão anterior
- * 3. Commit aplica mudanças mínimas ao DOM real
+ * Flow:
+ * 1. createElement creates the Virtual DOM
+ * 2. Reconciliation compares it with the previous version
+ * 3. Commit applies the minimal changes to the real DOM
  */

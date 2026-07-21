@@ -5,87 +5,87 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow.svg)
 ![Documentation](https://img.shields.io/badge/docs-JSDoc-orange.svg)
 
-MiniReact é uma implementação educacional do React, criada para demonstrar como frameworks modernos de UI funcionam internamente. Este projeto implementa os conceitos fundamentais do React do zero, incluindo Virtual DOM, Fiber Architecture, Hooks, e sistema de reconciliação.
+MiniReact is an educational implementation of React, created to demonstrate how modern UI frameworks work internally. This project implements React's fundamental concepts from scratch, including Virtual DOM, Fiber Architecture, Hooks, and a reconciliation system.
 
-## 📋 Índice
+## 📋 Table of Contents
 
-- [Características](#-características)
-- [Arquitetura](#-arquitetura)
-- [Instalação](#-instalação)
-- [Uso Básico](#-uso-básico)
+- [Features](#-features)
+- [Architecture](#-architecture)
+- [Installation](#-installation)
+- [Basic Usage](#-basic-usage)
 - [API Reference](#-api-reference)
-- [Exemplos](#-exemplos)
-- [Estrutura do Projeto](#-estrutura-do-projeto)
-- [Como Funciona](#-como-funciona)
-- [Desenvolvimento](#-desenvolvimento)
-- [Documentação](#-documentação)
-- [Limitações](#-limitações)
-- [Contribuindo](#-contribuindo)
-- [Licença](#-licença)
+- [Examples](#-examples)
+- [Project Structure](#-project-structure)
+- [How It Works](#-how-it-works)
+- [Development](#-development)
+- [Documentation](#-documentation)
+- [Limitations](#-limitations)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-## ✨ Características
+## ✨ Features
 
 ### Core Features
 
-- **🎯 Virtual DOM** - Representação em memória da UI para otimização de performance
-- **🧬 Fiber Architecture** - Renderização incremental e interruptível com priorização
-- **♻️ Reconciliation Algorithm** - Algoritmo eficiente de diff e patch O(n)
-- **🔑 Key-based Reconciliation** - Otimização para listas dinâmicas com keys
-- **⚡ Synthetic Event System** - Sistema de eventos sintéticos com delegação
-- **🎨 Component System** - Componentes funcionais e de classe (legacy)
-- **🔄 Batch Updates** - Atualizações em lote para melhor performance
+- **🎯 Virtual DOM** - In-memory representation of the UI for performance optimization
+- **🧬 Fiber Architecture** - Incremental and interruptible rendering with prioritization
+- **♻️ Reconciliation Algorithm** - Efficient O(n) diff-and-patch algorithm
+- **🔑 Key-based Reconciliation** - Optimization for dynamic lists using keys
+- **⚡ Synthetic Event System** - Synthetic event system with delegation
+- **🎨 Component System** - Functional and class components (legacy)
+- **🔄 Batch Updates** - Batched updates for better performance
 
-### Hooks Implementados
+### Implemented Hooks
 
-- **`useState`** - Gerenciamento de estado local com atualizações funcionais
-- **`useEffect`** - Efeitos colaterais com cleanup e dependências
-- **`useReducer`** - Gerenciamento de estado complexo estilo Redux
-- **`useMemo`** - Memoização de valores computacionalmente pesados
-- **`useCallback`** - Memoização de callbacks para otimização
-- **`useRef`** - Referências mutáveis para elementos DOM e valores persistentes
+- **`useState`** - Local state management with functional updates
+- **`useEffect`** - Side effects with cleanup and dependencies
+- **`useReducer`** - Redux-style complex state management
+- **`useMemo`** - Memoization of computationally expensive values
+- **`useCallback`** - Memoization of callbacks for optimization
+- **`useRef`** - Mutable references for DOM elements and persistent values
 
-### Features Adicionais
+### Additional Features
 
-- **📝 Controlled Forms** - Formulários totalmente controlados
-- **🧹 Cleanup Functions** - Limpeza automática de efeitos
-- **⚛️ Fragments** - Agrupamento sem wrapper DOM adicional
-- **🎯 Conditional Rendering** - Renderização condicional eficiente
-- **📦 Módulos ES6** - Arquitetura modular com imports/exports
+- **📝 Controlled Forms** - Fully controlled forms
+- **🧹 Cleanup Functions** - Automatic effect cleanup
+- **⚛️ Fragments** - Grouping without an additional DOM wrapper
+- **🎯 Conditional Rendering** - Efficient conditional rendering
+- **📦 ES6 Modules** - Modular architecture with imports/exports
 
-## 🏗 Arquitetura
+## 🏗 Architecture
 
-### Visão Geral do Sistema
+### System Overview
 
 ```
 MiniReact Architecture
 │
 ├── Virtual DOM Layer
-│   ├── createElement() - Cria elementos virtuais (VNodes)
-│   └── updateDom() - Sincroniza VNodes com DOM real
+│   ├── createElement() - Creates virtual elements (VNodes)
+│   └── updateDom() - Synchronizes VNodes with the real DOM
 │
 ├── Fiber Layer
-│   ├── Fiber Tree - Estrutura de dados para componentes
-│   ├── Work Loop - Processa fibers incrementalmente
-│   ├── render() - Ponto de entrada para renderização
-│   └── Scheduler - Agenda trabalho com requestIdleCallback
+│   ├── Fiber Tree - Data structure for components
+│   ├── Work Loop - Processes fibers incrementally
+│   ├── render() - Entry point for rendering
+│   └── Scheduler - Schedules work with requestIdleCallback
 │
 ├── Reconciliation Layer
-│   ├── Diffing - Compara árvores old vs new
-│   ├── Effect Tags - Marca mudanças (PLACEMENT, UPDATE, DELETION)
-│   └── Key Matching - Otimiza listas com keys
+│   ├── Diffing - Compares old vs new trees
+│   ├── Effect Tags - Marks changes (PLACEMENT, UPDATE, DELETION)
+│   └── Key Matching - Optimizes lists with keys
 │
 ├── Commit Layer
-│   ├── DOM Mutations - Aplica mudanças ao DOM
-│   ├── Effect Execution - Executa useEffect
-│   └── Cleanup - Limpa efeitos anteriores
+│   ├── DOM Mutations - Applies changes to the DOM
+│   ├── Effect Execution - Runs useEffect
+│   └── Cleanup - Cleans up previous effects
 │
 └── Hooks Layer
-    ├── Hook Storage - Armazena estado dos hooks
-    ├── Hook Queue - Fila de atualizações
-    └── Hook Utils - Validação e utilitários
+    ├── Hook Storage - Stores hook state
+    ├── Hook Queue - Update queue
+    └── Hook Utils - Validation and utilities
 ```
 
-### Fluxo de Renderização Detalhado
+### Detailed Rendering Flow
 
 ```mermaid
 graph TD
@@ -109,42 +109,42 @@ graph TD
     P --> Q[Complete]
 ```
 
-## 📦 Instalação
+## 📦 Installation
 
-### Pré-requisitos
+### Prerequisites
 
 - Node.js 14+
-- NPM 6+ ou Yarn
-- Navegador moderno com suporte a ES6
+- NPM 6+ or Yarn
+- Modern browser with ES6 support
 
-### Setup Rápido
+### Quick Setup
 
 ```bash
-# Clone o repositório
+# Clone the repository
 git clone https://github.com/adaoraul/minireact.git
 cd minireact
 
-# Instale as dependências
+# Install dependencies
 npm install
 
-# Inicie o servidor de desenvolvimento
+# Start the development server
 npm start
-# Acesse http://localhost:3000
+# Visit http://localhost:3000
 ```
 
-### Scripts Disponíveis
+### Available Scripts
 
 ```bash
-npm start          # Inicia servidor de desenvolvimento
-npm run lint       # Executa ESLint
-npm run lint:fix   # Corrige problemas do ESLint
-npm run format     # Formata código com Prettier
-npm run docs       # Gera documentação JSDoc
-npm run serve      # Servidor sem abrir navegador
-npm run dev        # Modo desenvolvimento com no-cache
+npm start          # Starts the development server
+npm run lint       # Runs ESLint
+npm run lint:fix   # Fixes ESLint issues
+npm run format     # Formats code with Prettier
+npm run docs       # Generates JSDoc documentation
+npm run serve      # Server without opening the browser
+npm run dev        # Development mode with no-cache
 ```
 
-## 🚀 Uso Básico
+## 🚀 Basic Usage
 
 ### Hello World
 
@@ -159,7 +159,7 @@ const container = document.getElementById('root');
 render(createElement(App), container);
 ```
 
-### Componente com Estado
+### Component with State
 
 ```javascript
 import { createElement, render, useState } from './src/index.js';
@@ -174,7 +174,7 @@ function Counter() {
     createElement('button', { onClick: () => setCount(count + 1) }, 'Increment'),
     createElement(
       'button',
-      { onClick: () => setCount((c) => c - 1) }, // Atualização funcional
+      { onClick: () => setCount((c) => c - 1) }, // Functional update
       'Decrement'
     )
   );
@@ -183,7 +183,7 @@ function Counter() {
 render(createElement(Counter), document.getElementById('root'));
 ```
 
-### Componente com Efeitos
+### Component with Effects
 
 ```javascript
 import { createElement, useState, useEffect } from './src/index.js';
@@ -204,7 +204,7 @@ function Timer() {
       console.log('Cleaning up timer');
       clearInterval(interval);
     };
-  }, [isRunning]); // Re-executa quando isRunning muda
+  }, [isRunning]); // Re-runs when isRunning changes
 
   return createElement(
     'div',
@@ -225,26 +225,26 @@ function Timer() {
 
 #### `createElement(type, props, ...children)`
 
-Cria um elemento virtual (VNode).
+Creates a virtual element (VNode).
 
-**Parâmetros:**
+**Parameters:**
 
-- `type` {string|Function} - Tag HTML ou componente
-- `props` {Object|null} - Propriedades do elemento
-- `...children` {any} - Elementos filhos
+- `type` {string|Function} - HTML tag or component
+- `props` {Object|null} - Element properties
+- `...children` {any} - Child elements
 
-**Retorna:** {VNode} - Elemento virtual
+**Returns:** {VNode} - Virtual element
 
-**Exemplo:**
+**Example:**
 
 ```javascript
-// Elemento HTML
+// HTML element
 const div = createElement('div', { className: 'container' }, 'Hello');
 
-// Componente
+// Component
 const app = createElement(MyComponent, { name: 'World' });
 
-// Com múltiplos filhos
+// With multiple children
 const list = createElement(
   'ul',
   null,
@@ -255,14 +255,14 @@ const list = createElement(
 
 #### `render(element, container)`
 
-Renderiza um elemento virtual no DOM.
+Renders a virtual element into the DOM.
 
-**Parâmetros:**
+**Parameters:**
 
-- `element` {VNode} - Elemento virtual para renderizar
-- `container` {HTMLElement} - Container DOM
+- `element` {VNode} - Virtual element to render
+- `container` {HTMLElement} - DOM container
 
-**Exemplo:**
+**Example:**
 
 ```javascript
 const App = () => createElement('h1', null, 'Hello');
@@ -273,64 +273,64 @@ render(createElement(App), document.getElementById('root'));
 
 #### `useState(initialValue)`
 
-Hook para gerenciar estado local.
+Hook for managing local state.
 
-**Parâmetros:**
+**Parameters:**
 
-- `initialValue` {T} - Valor inicial do estado
+- `initialValue` {T} - Initial state value
 
-**Retorna:** [T, Function] - Par [estado, setState]
+**Returns:** [T, Function] - [state, setState] pair
 
-**Exemplo:**
+**Example:**
 
 ```javascript
 function Component() {
   const [count, setCount] = useState(0);
   const [user, setUser] = useState({ name: 'John' });
 
-  // Atualização direta
+  // Direct update
   setCount(5);
 
-  // Atualização funcional (recomendado para valores baseados no anterior)
+  // Functional update (recommended for values based on the previous one)
   setCount((prev) => prev + 1);
 
-  // Atualização de objeto
+  // Object update
   setUser((prev) => ({ ...prev, age: 30 }));
 }
 ```
 
 #### `useEffect(effect, deps)`
 
-Hook para efeitos colaterais e ciclo de vida.
+Hook for side effects and lifecycle.
 
-**Parâmetros:**
+**Parameters:**
 
-- `effect` {Function} - Função de efeito que pode retornar cleanup
-- `deps` {Array|undefined} - Dependências que disparam re-execução
+- `effect` {Function} - Effect function that may return a cleanup
+- `deps` {Array|undefined} - Dependencies that trigger re-execution
 
-**Comportamento:**
+**Behavior:**
 
-- `deps` undefined - Executa após cada render
-- `deps` [] - Executa apenas na montagem
-- `deps` [a, b] - Executa quando a ou b mudam
+- `deps` undefined - Runs after every render
+- `deps` [] - Runs only on mount
+- `deps` [a, b] - Runs when a or b change
 
-**Exemplo:**
+**Example:**
 
 ```javascript
 function Component() {
   const [data, setData] = useState(null);
 
-  // Executa uma vez na montagem
+  // Runs once on mount
   useEffect(() => {
     fetchData().then(setData);
   }, []);
 
-  // Executa quando userId muda
+  // Runs when userId changes
   useEffect(() => {
     fetchUser(userId).then(setUser);
   }, [userId]);
 
-  // Com cleanup
+  // With cleanup
   useEffect(() => {
     const handler = () => console.log('click');
     window.addEventListener('click', handler);
@@ -344,16 +344,16 @@ function Component() {
 
 #### `useReducer(reducer, initialState)`
 
-Hook para gerenciamento de estado complexo.
+Hook for managing complex state.
 
-**Parâmetros:**
+**Parameters:**
 
-- `reducer` {Function} - Função (state, action) => newState
-- `initialState` {T} - Estado inicial
+- `reducer` {Function} - Function (state, action) => newState
+- `initialState` {T} - Initial state
 
-**Retorna:** [T, Function] - Par [estado, dispatch]
+**Returns:** [T, Function] - [state, dispatch] pair
 
-**Exemplo:**
+**Example:**
 
 ```javascript
 const todoReducer = (state, action) => {
@@ -389,20 +389,20 @@ function TodoList() {
 
 #### `useMemo(compute, deps)`
 
-Hook para memoizar valores computados.
+Hook for memoizing computed values.
 
-**Parâmetros:**
+**Parameters:**
 
-- `compute` {Function} - Função que computa o valor
-- `deps` {Array} - Dependências para recálculo
+- `compute` {Function} - Function that computes the value
+- `deps` {Array} - Dependencies for recomputation
 
-**Retorna:** {T} - Valor memoizado
+**Returns:** {T} - Memoized value
 
-**Exemplo:**
+**Example:**
 
 ```javascript
 function ExpensiveComponent({ items, filter }) {
-  // Só recalcula quando items ou filter mudam
+  // Only recalculates when items or filter change
   const filteredItems = useMemo(() => {
     console.log('Filtering...');
     return items
@@ -410,10 +410,10 @@ function ExpensiveComponent({ items, filter }) {
       .sort((a, b) => b.priority - a.priority);
   }, [items, filter]);
 
-  // Memoiza objeto para evitar re-renders
+  // Memoizes object to avoid re-renders
   const config = useMemo(
     () => ({ theme: 'dark', size: 'large' }),
-    [] // Nunca muda
+    [] // Never changes
   );
 
   return createElement('div', null /* ... */);
@@ -422,29 +422,29 @@ function ExpensiveComponent({ items, filter }) {
 
 #### `useCallback(callback, deps)`
 
-Hook para memoizar callbacks.
+Hook for memoizing callbacks.
 
-**Parâmetros:**
+**Parameters:**
 
-- `callback` {Function} - Função callback
-- `deps` {Array} - Dependências
+- `callback` {Function} - Callback function
+- `deps` {Array} - Dependencies
 
-**Retorna:** {Function} - Callback memoizado
+**Returns:** {Function} - Memoized callback
 
-**Exemplo:**
+**Example:**
 
 ```javascript
 function Parent({ data }) {
-  // Evita recriar função a cada render
+  // Avoids recreating the function on every render
   const handleClick = useCallback(
     (id) => {
       console.log('Clicked:', id);
       updateItem(id);
     },
-    [] // Função nunca muda
+    [] // Function never changes
   );
 
-  // Recria apenas quando data muda
+  // Recreates only when data changes
   const processData = useCallback(() => {
     return data.map(transformItem);
   }, [data]);
@@ -453,16 +453,16 @@ function Parent({ data }) {
 }
 ```
 
-## 💡 Exemplos Avançados
+## 💡 Advanced Examples
 
-### Lista com Keys e Otimização
+### List with Keys and Optimization
 
 ```javascript
 function TodoList() {
   const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState('all');
 
-  // Memoiza lista filtrada
+  // Memoizes filtered list
   const visibleTodos = useMemo(() => {
     switch (filter) {
       case 'active':
@@ -474,7 +474,7 @@ function TodoList() {
     }
   }, [todos, filter]);
 
-  // Memoiza callbacks
+  // Memoizes callbacks
   const toggleTodo = useCallback((id) => {
     setTodos((prev) =>
       prev.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo))
@@ -486,7 +486,7 @@ function TodoList() {
     null,
     ...visibleTodos.map((todo) =>
       createElement(TodoItem, {
-        key: todo.id, // Importante para performance!
+        key: todo.id, // Important for performance!
         todo,
         onToggle: toggleTodo,
       })
@@ -495,7 +495,7 @@ function TodoList() {
 }
 ```
 
-### Formulário Controlado Completo
+### Complete Controlled Form
 
 ```javascript
 function ContactForm() {
@@ -507,13 +507,13 @@ function ContactForm() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Validação
+  // Validation
   const validate = useCallback(() => {
     const newErrors = {};
-    if (!formData.name) newErrors.name = 'Nome obrigatório';
-    if (!formData.email) newErrors.email = 'Email obrigatório';
+    if (!formData.name) newErrors.name = 'Name required';
+    if (!formData.email) newErrors.email = 'Email required';
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email inválido';
+      newErrors.email = 'Invalid email';
     }
     return newErrors;
   }, [formData]);
@@ -521,7 +521,7 @@ function ContactForm() {
   // Update field
   const updateField = useCallback((field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Limpa erro do campo
+    // Clears the field error
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   }, []);
 
@@ -558,14 +558,14 @@ function ContactForm() {
       disabled: isSubmitting,
     }),
     errors.name && createElement('span', { className: 'error' }, errors.name),
-    // ... outros campos
+    // ... other fields
     createElement(
       'button',
       {
         type: 'submit',
         disabled: isSubmitting,
       },
-      isSubmitting ? 'Enviando...' : 'Enviar'
+      isSubmitting ? 'Submitting...' : 'Submit'
     )
   );
 }
@@ -574,9 +574,9 @@ function ContactForm() {
 ### Custom Hook - useLocalStorage
 
 ```javascript
-// Custom hook para sincronizar com localStorage
+// Custom hook to sync with localStorage
 function useLocalStorage(key, initialValue) {
-  // Estado inicial do localStorage ou valor padrão
+  // Initial state from localStorage or default value
   const [storedValue, setStoredValue] = useState(() => {
     try {
       const item = window.localStorage.getItem(key);
@@ -587,7 +587,7 @@ function useLocalStorage(key, initialValue) {
     }
   });
 
-  // Função para atualizar localStorage e estado
+  // Function to update localStorage and state
   const setValue = useCallback(
     (value) => {
       try {
@@ -604,91 +604,91 @@ function useLocalStorage(key, initialValue) {
   return [storedValue, setValue];
 }
 
-// Uso
+// Usage
 function Settings() {
   const [theme, setTheme] = useLocalStorage('theme', 'light');
-  const [language, setLanguage] = useLocalStorage('language', 'pt');
+  const [language, setLanguage] = useLocalStorage('language', 'en');
 
   return createElement('div', null /* ... */);
 }
 ```
 
-## 📁 Estrutura do Projeto
+## 📁 Project Structure
 
 ```
 minireact/
-├── src/                        # Código fonte do framework
-│   ├── index.js               # Entry point e exports públicos
+├── src/                        # Framework source code
+│   ├── index.js               # Entry point and public exports
 │   │
-│   ├── core/                  # Núcleo do framework
-│   │   ├── constants.js       # Constantes (EFFECT_TAGS, TEXT_ELEMENT)
+│   ├── core/                  # Framework core
+│   │   ├── constants.js       # Constants (EFFECT_TAGS, TEXT_ELEMENT)
 │   │   ├── fiber.js           # Fiber, work loop, render function
-│   │   ├── reconciler.js      # Algoritmo de reconciliação
-│   │   └── commit.js          # Fase de commit e mutações DOM
+│   │   ├── reconciler.js      # Reconciliation algorithm
+│   │   └── commit.js          # Commit phase and DOM mutations
 │   │
 │   ├── vdom/                  # Virtual DOM
-│   │   ├── createElement.js   # Criação de elementos virtuais
-│   │   └── updateDom.js       # Sincronização com DOM real
+│   │   ├── createElement.js   # Virtual element creation
+│   │   └── updateDom.js       # Synchronization with the real DOM
 │   │
-│   ├── hooks/                 # Sistema de Hooks
-│   │   ├── index.js          # Re-export de todos os hooks
-│   │   ├── hookUtils.js      # Utilitários compartilhados
-│   │   ├── useState.js       # Hook de estado
-│   │   ├── useEffect.js      # Hook de efeitos
-│   │   ├── useReducer.js     # Hook reducer
-│   │   ├── useMemo.js        # Hook de memoização
-│   │   └── useCallback.js    # Hook de callback
+│   ├── hooks/                 # Hooks system
+│   │   ├── index.js          # Re-exports all hooks
+│   │   ├── hookUtils.js      # Shared utilities
+│   │   ├── useState.js       # State hook
+│   │   ├── useEffect.js      # Effects hook
+│   │   ├── useReducer.js     # Reducer hook
+│   │   ├── useMemo.js        # Memoization hook
+│   │   └── useCallback.js    # Callback hook
 │   │
-│   └── component.js          # Classe Component (legacy)
+│   └── component.js          # Component class (legacy)
 │
-├── examples/                  # Exemplos e demos
-│   ├── index.html            # Demo principal completo
-│   ├── timer-test.html       # Teste específico de timer
-│   └── useEffect-test.html   # Teste de useEffect
+├── examples/                  # Examples and demos
+│   ├── index.html            # Full main demo
+│   ├── timer-test.html       # Timer-specific test
+│   └── useEffect-test.html   # useEffect test
 │
-├── docs/                     # Documentação gerada (JSDoc)
+├── docs/                     # Generated documentation (JSDoc)
 │
-├── .eslintrc.json           # Configuração ESLint
-├── .prettierrc              # Configuração Prettier
-├── package.json             # Dependências e scripts
-├── LICENSE                  # Licença MIT
-└── README.md               # Este arquivo
+├── .eslintrc.json           # ESLint configuration
+├── .prettierrc              # Prettier configuration
+├── package.json             # Dependencies and scripts
+├── LICENSE                  # MIT license
+└── README.md               # This file
 ```
 
-## ⚙️ Como Funciona
+## ⚙️ How It Works
 
 ### Virtual DOM
 
-O Virtual DOM é uma representação JavaScript leve da árvore DOM real. Quando o estado muda:
+The Virtual DOM is a lightweight JavaScript representation of the real DOM tree. When the state changes:
 
-1. Criamos uma nova árvore Virtual DOM
-2. Comparamos com a árvore anterior (diffing)
-3. Calculamos o conjunto mínimo de mudanças
-4. Aplicamos apenas essas mudanças ao DOM real
+1. We create a new Virtual DOM tree
+2. We compare it with the previous tree (diffing)
+3. We calculate the minimal set of changes
+4. We apply only those changes to the real DOM
 
-**Benefícios:**
+**Benefits:**
 
-- Reduz manipulações DOM custosas
-- Permite otimizações em batch
-- Facilita programação declarativa
+- Reduces costly DOM manipulations
+- Enables batch optimizations
+- Facilitates declarative programming
 
 ### Fiber Architecture
 
-Fiber é uma reimplementação do algoritmo de reconciliação do React. Cada fiber é uma unidade de trabalho que representa um componente.
+Fiber is a reimplementation of React's reconciliation algorithm. Each fiber is a unit of work that represents a component.
 
-**Estrutura do Fiber:**
+**Fiber Structure:**
 
 ```javascript
 {
-  type: Function | string,    // Tipo do componente
-  props: Object,              // Propriedades
-  dom: HTMLElement,           // Nó DOM associado
-  parent: Fiber,              // Fiber pai
-  child: Fiber,               // Primeiro filho
-  sibling: Fiber,             // Próximo irmão
-  alternate: Fiber,           // Fiber da renderização anterior
+  type: Function | string,    // Component type
+  props: Object,              // Properties
+  dom: HTMLElement,           // Associated DOM node
+  parent: Fiber,              // Parent fiber
+  child: Fiber,               // First child
+  sibling: Fiber,             // Next sibling
+  alternate: Fiber,           // Fiber from the previous render
   effectTag: string,          // PLACEMENT | UPDATE | DELETION
-  hooks: Array                // Estado dos hooks
+  hooks: Array                // Hook state
 }
 ```
 
@@ -701,142 +701,142 @@ function workLoop(deadline) {
   }
 
   if (!nextUnitOfWork && wipRoot) {
-    commitRoot(); // Aplica mudanças ao DOM
+    commitRoot(); // Applies changes to the DOM
   }
 
   requestIdleCallback(workLoop);
 }
 ```
 
-### Reconciliação
+### Reconciliation
 
-O algoritmo de reconciliação compara árvores e determina mudanças:
+The reconciliation algorithm compares trees and determines changes:
 
-1. **Same Type**: Atualiza props, mantém instância
-2. **Different Type**: Remove antiga, cria nova
-3. **Keys**: Identifica elementos em listas para reordenação eficiente
+1. **Same Type**: Updates props, keeps the instance
+2. **Different Type**: Removes the old one, creates a new one
+3. **Keys**: Identifies elements in lists for efficient reordering
 
-**Complexidade:** O(n) onde n = número de elementos
+**Complexity:** O(n) where n = number of elements
 
-### Sistema de Hooks
+### Hooks System
 
-Hooks permitem estado e efeitos em componentes funcionais. Cada hook:
+Hooks enable state and effects in functional components. Each hook:
 
-1. Valida contexto (deve estar em componente)
-2. Obtém/cria slot de armazenamento
-3. Compara com renderização anterior
-4. Agenda re-render se necessário
+1. Validates context (must be inside a component)
+2. Gets/creates a storage slot
+3. Compares with the previous render
+4. Schedules a re-render if necessary
 
-**Regras dos Hooks:**
+**Rules of Hooks:**
 
-- Apenas no top-level (não em condicionais/loops)
-- Apenas em componentes funcionais
-- Ordem consistente entre renders
+- Only at the top level (not inside conditionals/loops)
+- Only in functional components
+- Consistent order between renders
 
 ### Commit Phase
 
-Após reconciliação, a fase de commit:
+After reconciliation, the commit phase:
 
-1. Aplica todas as mudanças DOM de uma vez
-2. Executa efeitos (useEffect)
-3. Limpa efeitos anteriores
-4. É síncrona e não pode ser interrompida
+1. Applies all DOM changes at once
+2. Runs effects (useEffect)
+3. Cleans up previous effects
+4. Is synchronous and cannot be interrupted
 
-## 🛠 Desenvolvimento
+## 🛠 Development
 
-### Setup de Desenvolvimento
+### Development Setup
 
 ```bash
-# Clone e instale
+# Clone and install
 git clone https://github.com/adaoraul/minireact.git
 cd minireact
 npm install
 
-# Desenvolvimento com hot-reload manual
+# Development with manual hot-reload
 npm run dev
 
-# Verificar código
+# Check code
 npm run lint
 npm run format:check
 
-# Corrigir código
+# Fix code
 npm run lint:fix
 npm run format
 ```
 
 ### Debugging
 
-Para debug, use as Chrome DevTools:
+For debugging, use Chrome DevTools:
 
 ```javascript
-// Adicione breakpoints ou logs
+// Add breakpoints or logs
 console.log('Current fiber:', window.minireact.wipFiber);
 console.log('Work root:', window.minireact.wipRoot);
 console.log('Hook index:', window.minireact.hookIndex);
 
-// Inspecione o estado global
-window.minireact; // Objeto com estado interno
+// Inspect the global state
+window.minireact; // Object with internal state
 ```
 
-### Testes Manuais
+### Manual Testing
 
-Abra os arquivos de exemplo no navegador:
+Open the example files in your browser:
 
-1. `examples/index.html` - Suite completa de componentes
-2. `examples/timer-test.html` - Teste de intervalos e cleanup
-3. `examples/useEffect-test.html` - Teste de dependências de efeitos
+1. `examples/index.html` - Full component suite
+2. `examples/timer-test.html` - Interval and cleanup test
+3. `examples/useEffect-test.html` - Effect dependency test
 
 ### Performance Profiling
 
-Use o Performance tab do Chrome DevTools:
+Use the Performance tab in Chrome DevTools:
 
 1. Start recording
-2. Interaja com a aplicação
+2. Interact with the application
 3. Stop recording
-4. Analise o flame chart
+4. Analyze the flame chart
 
-Procure por:
+Look for:
 
-- `workLoop` - Tempo de reconciliação
-- `commitRoot` - Tempo de commit
-- `updateDom` - Manipulações DOM
+- `workLoop` - Reconciliation time
+- `commitRoot` - Commit time
+- `updateDom` - DOM manipulations
 
-## 📖 Documentação
+## 📖 Documentation
 
-### Gerando Documentação JSDoc
+### Generating JSDoc Documentation
 
 ```bash
-# Gera documentação HTML
+# Generates HTML documentation
 npm run docs
 
-# Visualiza no navegador
+# View in the browser
 open docs/index.html
 ```
 
-A documentação inclui:
+The documentation includes:
 
-- Descrições detalhadas de cada função
-- Parâmetros com tipos
-- Exemplos de uso
-- Diagramas de arquitetura
-- Links para código fonte
+- Detailed descriptions of each function
+- Typed parameters
+- Usage examples
+- Architecture diagrams
+- Links to source code
 
-### Estilo de Documentação
+### Documentation Style
 
-Todo código segue JSDoc com:
+All code follows JSDoc with:
 
-- `@fileoverview` - Descrição do arquivo
-- `@module` - Nome do módulo
-- `@param` - Parâmetros tipados
-- `@returns` - Tipo de retorno
-- `@example` - Exemplos práticos
-- `@description` - Explicação detalhada
+- `@fileoverview` - File description
+- `@module` - Module name
+- `@param` - Typed parameters
+- `@returns` - Return type
+- `@example` - Practical examples
+- `@description` - Detailed explanation
 
-## ⚠️ Limitações
+## ⚠️ Limitations
 
-Este é um projeto educacional. **NÃO use em produção**.
+This is an educational project. **DO NOT use in production**.
 
-### Não Implementado
+### Not Implemented
 
 - ❌ React DevTools
 - ❌ Server-Side Rendering (SSR)
@@ -851,66 +851,64 @@ Este é um projeto educacional. **NÃO use em produção**.
 - ❌ useImperativeHandle
 - ❌ Lazy loading
 
-### Diferenças do React
+### Differences from React
 
-- Performance inferior (sem otimizações de produção)
-- Sem batching automático de setState
-- Sem priorização de updates
-- Event handling mais simples
-- Sem hydration para SSR
+- Lower performance (no production optimizations)
+- No automatic setState batching
+- No update prioritization
+- Simpler event handling
+- No hydration for SSR
 
-### Bugs Conhecidos
+### Known Bugs
 
-- Memory leaks em alguns edge cases com effects
-- Race conditions em updates muito rápidos
-- Keys nem sempre otimizam corretamente
+- Memory leaks in some edge cases with effects
+- Race conditions in very rapid updates
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-Contribuições são bem-vindas! Este é um projeto educacional perfeito para aprender.
+Contributions are welcome! This is an educational project that's perfect for learning.
 
-### Como Contribuir
+### How to Contribute
 
-1. **Fork** o projeto
-2. **Clone** seu fork
+1. **Fork** the project
+2. **Clone** your fork
    ```bash
    git clone https://github.com/adaoraul/minireact.git
    ```
-3. **Crie** uma branch
+3. **Create** a branch
    ```bash
-   git checkout -b feature/MinhaFeature
+   git checkout -b feature/MyFeature
    ```
-4. **Commit** suas mudanças
+4. **Commit** your changes
    ```bash
-   git commit -m 'Add: MinhaFeature'
+   git commit -m 'Add: MyFeature'
    ```
-5. **Push** para a branch
+5. **Push** to the branch
    ```bash
-   git push origin feature/MinhaFeature
+   git push origin feature/MyFeature
    ```
-6. **Abra** um Pull Request
+6. **Open** a Pull Request
 
 ### Guidelines
 
-- ✅ Mantenha documentação em português
-- ✅ Siga o estilo de código (ESLint + Prettier)
-- ✅ Adicione exemplos para novas features
-- ✅ Atualize README e JSDoc
-- ✅ Teste manualmente as mudanças
-- ✅ Commits descritivos
+- ✅ Keep documentation in English
+- ✅ Follow the code style (ESLint + Prettier)
+- ✅ Add examples for new features
+- ✅ Update the README and JSDoc
+- ✅ Manually test your changes
+- ✅ Write descriptive commits
 
-### Áreas para Contribuição
+### Areas for Contribution
 
-- 🎯 Implementar Context API
-- 🎯 Adicionar mais hooks (useContext)
-- 🎯 Melhorar performance
-- 🎯 Adicionar testes automatizados
-- 🎯 Criar mais exemplos
-- 🎯 Traduzir para inglês
+- 🎯 Implement Context API
+- 🎯 Add more hooks (useContext)
+- 🎯 Improve performance
+- 🎯 Add automated tests
+- 🎯 Create more examples
 
-## 📝 Licença
+## 📝 License
 
-Este projeto está licenciado sob a licença MIT - veja [LICENSE](LICENSE) para detalhes.
+This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
 
 ```
 MIT License
@@ -926,41 +924,41 @@ furnished to do so, subject to the following conditions:
 ...
 ```
 
-## 🙏 Agradecimentos
+## 🙏 Acknowledgements
 
-- 💜 Inspirado pelo [React](https://reactjs.org/) do Meta/Facebook
-- 📚 Baseado em [Build your own React](https://pomb.us/build-your-own-react/) de Rodrigo Pombo
-- 🎓 Influenciado por [React Fiber Architecture](https://github.com/acdlite/react-fiber-architecture)
-- 👥 Comunidade React pelos recursos educacionais
-- ⭐ Todos os contribuidores deste projeto
+- 💜 Inspired by [React](https://reactjs.org/) from Meta/Facebook
+- 📚 Based on [Build your own React](https://pomb.us/build-your-own-react/) by Rodrigo Pombo
+- 🎓 Influenced by [React Fiber Architecture](https://github.com/acdlite/react-fiber-architecture)
+- 👥 The React community for educational resources
+- ⭐ All contributors to this project
 
-## 📞 Suporte
+## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/adaoraul/minireact/issues)
-- **Discussões**: [GitHub Discussions](https://github.com/adaoraul/minireact/discussions)
+- **Discussions**: [GitHub Discussions](https://github.com/adaoraul/minireact/discussions)
 
 ## 🚀 Roadmap
 
-### v2.1.0 (Planejado)
+### v2.1.0 (Planned)
 
-- [ ] Context API básica
+- [ ] Basic Context API
 - [x] useRef implementation
 - [ ] Error Boundaries
 
-### v3.0.0 (Futuro)
+### v3.0.0 (Future)
 
-- [ ] Concurrent Mode básico
-- [ ] Suspense para data fetching
+- [ ] Basic Concurrent Mode
+- [ ] Suspense for data fetching
 - [ ] Server Components (experimental)
 
 ---
 
 <div align="center">
 
-**⭐ Star este projeto se foi útil para seu aprendizado!**
+**⭐ Star this project if it helped your learning!**
 
-Feito com 💜 para a comunidade de aprendizado
+Made with 💜 for the learning community
 
-[Reportar Bug](https://github.com/adaoraul/minireact/issues) · [Sugerir Feature](https://github.com/adaoraul/minireact/issues)
+[Report Bug](https://github.com/adaoraul/minireact/issues) · [Suggest Feature](https://github.com/adaoraul/minireact/issues)
 
 </div>

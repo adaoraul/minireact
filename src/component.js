@@ -1,55 +1,55 @@
 /**
- * @fileoverview Classe base para componentes de classe
+ * @fileoverview Base class for class components
  * @module component
  * @description
- * Módulo que fornece a classe base Component para criar componentes usando classes.
+ * Module that provides the base Component class for creating components using classes.
  *
- * Este módulo oferece uma API familiar para desenvolvedores acostumados com
- * React.Component, permitindo a criação de componentes com estado e métodos
- * de ciclo de vida usando a sintaxe de classes do JavaScript.
+ * This module offers a familiar API for developers accustomed to
+ * React.Component, allowing the creation of stateful components with
+ * lifecycle methods using JavaScript's class syntax.
  *
- * **Características Principais:**
- * - **Estado Local**: Gerenciado através de this.state e this.setState
- * - **Props**: Acessíveis via this.props
- * - **Render Method**: Método obrigatório que retorna elementos virtuais
- * - **Lifecycle**: Base para métodos de ciclo de vida (parcialmente implementado)
+ * **Main Features:**
+ * - **Local State**: Managed through this.state and this.setState
+ * - **Props**: Accessible via this.props
+ * - **Render Method**: Required method that returns virtual elements
+ * - **Lifecycle**: Base for lifecycle methods (partially implemented)
  *
- * **Diferenças dos Componentes Funcionais:**
- * - Estado gerenciado com this.state ao invés de hooks
- * - Métodos de classe ao invés de funções internas
- * - Necessita binding explícito ou arrow functions para callbacks
- * - Sintaxe mais verbosa mas familiar para OOP
+ * **Differences from Functional Components:**
+ * - State managed with this.state instead of hooks
+ * - Class methods instead of internal functions
+ * - Requires explicit binding or arrow functions for callbacks
+ * - More verbose syntax but familiar for OOP
  *
- * **Quando Usar:**
- * - Migração de código React existente
- * - Preferência por programação orientada a objetos
- * - Casos onde a sintaxe de classe é mais clara
+ * **When to Use:**
+ * - Migrating existing React code
+ * - Preference for object-oriented programming
+ * - Cases where class syntax is clearer
  *
- * **Limitações Atuais:**
- * - Ciclo de vida não totalmente implementado
- * - Sem componentDidMount, componentDidUpdate, componentWillUnmount
- * - Sem shouldComponentUpdate para otimizações
- * - Sem error boundaries ou componentDidCatch
+ * **Current Limitations:**
+ * - Lifecycle not fully implemented
+ * - No componentDidMount, componentDidUpdate, componentWillUnmount
+ * - No shouldComponentUpdate for optimizations
+ * - No error boundaries or componentDidCatch
  *
- * **Recomendação:**
- * Para novos componentes, prefira componentes funcionais com hooks,
- * que são mais simples, performáticos e o padrão moderno.
+ * **Recommendation:**
+ * For new components, prefer functional components with hooks,
+ * which are simpler, more performant, and the modern standard.
  */
 
 import { scheduleRerender } from './core/fiber.js';
 
 /**
- * Classe base para criar componentes com estado
+ * Base class for creating stateful components
  *
  * @description
- * Fornece uma API similar ao React.Component para criar componentes
- * usando classes ao invés de funções. Suporta estado local e métodos
- * de ciclo de vida.
+ * Provides an API similar to React.Component for creating components
+ * using classes instead of functions. Supports local state and
+ * lifecycle methods.
  *
  * @class Component
  *
  * @example
- * // Componente de classe simples
+ * // Simple class component
  * class Counter extends Component {
  *   constructor(props) {
  *     super(props);
@@ -70,7 +70,7 @@ import { scheduleRerender } from './core/fiber.js';
  * }
  *
  * @example
- * // Usando setState funcional
+ * // Using functional setState
  * class TodoList extends Component {
  *   constructor(props) {
  *     super(props);
@@ -84,15 +84,15 @@ import { scheduleRerender } from './core/fiber.js';
  *   }
  *
  *   render() {
- *     // ... renderização dos todos
+ *     // ... rendering of the todos
  *   }
  * }
  */
 export class Component {
   /**
-   * Construtor do componente
+   * Component constructor
    *
-   * @param {Object} props - Propriedades passadas ao componente
+   * @param {Object} props - Properties passed to the component
    */
   constructor(props) {
     this.props = props;
@@ -101,27 +101,27 @@ export class Component {
   }
 
   /**
-   * Atualiza o estado do componente e dispara re-renderização
+   * Updates the component's state and triggers a re-render
    *
    * @description
-   * Pode receber um objeto com o estado parcial ou uma função
-   * que recebe o estado anterior e retorna o novo estado.
-   * As atualizações são mescladas com o estado atual.
+   * Can receive an object with the partial state or a function
+   * that receives the previous state and returns the new state.
+   * Updates are merged with the current state.
    *
-   * @param {Object|Function} partialState - Novo estado ou função updater
+   * @param {Object|Function} partialState - New state or updater function
    *
    * @example
-   * // Atualização com objeto
+   * // Update with an object
    * this.setState({ count: 5 });
    *
    * @example
-   * // Atualização funcional (recomendada para valores dependentes)
+   * // Functional update (recommended for dependent values)
    * this.setState(prevState => ({
    *   count: prevState.count + 1
    * }));
    *
    * @example
-   * // Múltiplas propriedades
+   * // Multiple properties
    * this.setState({
    *   loading: false,
    *   data: responseData,
@@ -129,48 +129,48 @@ export class Component {
    * });
    */
   setState(partialState) {
-    // Calcula novo estado
+    // Calculate new state
     const newState = typeof partialState === 'function' ? partialState(this.state) : partialState;
 
-    // Mescla com estado atual
+    // Merge with current state
     this.state = {
       ...this.state,
       ...newState,
     };
 
-    // Dispara re-renderização
+    // Trigger re-render
     this.forceUpdate();
   }
 
   /**
-   * Força re-renderização do componente
+   * Forces the component to re-render
    *
    * @description
-   * Ignora shouldComponentUpdate e força o componente a re-renderizar.
-   * Deve ser usado com moderação, prefira setState na maioria dos casos.
+   * Ignores shouldComponentUpdate and forces the component to re-render.
+   * Should be used sparingly, prefer setState in most cases.
    *
    * @example
-   * // Força atualização após mudança externa
+   * // Force update after an external change
    * handleExternalChange = () => {
    *   this.forceUpdate();
    * }
    */
   forceUpdate() {
-    // Agenda re-renderização através do sistema de fibers
+    // Schedules re-render through the fiber system
     if (typeof window !== 'undefined' && window.minireact && window.minireact.scheduleRerender) {
       window.minireact.scheduleRerender();
     } else {
-      // Fallback para ambiente de teste - usa importação direta
+      // Fallback for test environment - uses direct import
       scheduleRerender();
     }
   }
 
   /**
-   * Método de renderização (deve ser implementado pela subclasse)
+   * Render method (must be implemented by the subclass)
    *
    * @abstract
-   * @returns {Object} Elemento virtual a ser renderizado
-   * @throws {Error} Se não for implementado pela subclasse
+   * @returns {Object} Virtual element to be rendered
+   * @throws {Error} If not implemented by the subclass
    */
   render() {
     throw new Error('Component subclass must implement render() method');
@@ -178,33 +178,33 @@ export class Component {
 }
 
 /**
- * Informações sobre Componentes de Classe
+ * Information about Class Components
  *
  * @description
- * Componentes de classe são uma forma alternativa de criar componentes
- * com estado e métodos de ciclo de vida.
+ * Class components are an alternative way to create stateful components
+ * with lifecycle methods.
  *
- * Diferenças dos componentes funcionais:
+ * Differences from functional components:
  *
- * 1. **Estado**: Usa this.state ao invés de useState
- * 2. **Métodos**: Métodos da classe ao invés de funções internas
- * 3. **This binding**: Precisa fazer bind ou usar arrow functions
- * 4. **Ciclo de vida**: Métodos específicos (não implementados completamente)
+ * 1. **State**: Uses this.state instead of useState
+ * 2. **Methods**: Class methods instead of internal functions
+ * 3. **This binding**: Needs to bind or use arrow functions
+ * 4. **Lifecycle**: Specific methods (not fully implemented)
  *
- * Quando usar componentes de classe:
- * - Código legado que usa classes
- * - Preferência pessoal/equipe
- * - Casos específicos de ciclo de vida complexo
+ * When to use class components:
+ * - Legacy code that uses classes
+ * - Personal/team preference
+ * - Specific cases of complex lifecycle
  *
- * Quando usar componentes funcionais:
- * - Código novo (recomendado)
- * - Melhor performance (menos overhead)
- * - Hooks fornecem toda funcionalidade necessária
- * - Mais simples e conciso
+ * When to use functional components:
+ * - New code (recommended)
+ * - Better performance (less overhead)
+ * - Hooks provide all the necessary functionality
+ * - Simpler and more concise
  *
- * Limitações atuais:
- * - Ciclo de vida não totalmente implementado
- * - Sem componentDidMount, componentDidUpdate, etc
- * - Sem shouldComponentUpdate para otimização
- * - Sem error boundaries
+ * Current limitations:
+ * - Lifecycle not fully implemented
+ * - No componentDidMount, componentDidUpdate, etc
+ * - No shouldComponentUpdate for optimization
+ * - No error boundaries
  */

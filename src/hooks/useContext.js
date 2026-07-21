@@ -1,39 +1,30 @@
 /**
- * @fileoverview Implementação do hook useContext e createContext
+ * @fileoverview Implementation of the useContext hook and createContext
  * @module hooks/useContext
  * @description
- * Implementa o sistema de contexto do MiniReact, permitindo compartilhar dados
- * entre componentes sem prop drilling.
+ * Implements MiniReact's context system, allowing data to be shared
+ * between components without prop drilling.
  *
- * **Características:**
- * - createContext para criar contextos
- * - Provider component para fornecer valores
- * - useContext hook para consumir valores
- * - Suporte a contextos aninhados
- * - Valores padrão quando não há Provider
+ * **Features:**
+ * - createContext to create contexts
+ * - Provider component to supply values
+ * - useContext hook to consume values
+ * - Support for nested contexts
+ * - Default values when there is no Provider
  */
 
-import {
-  getCurrentFiber,
-  getCurrentHookIndex,
-  incrementHookIndex,
-  validateHookCall,
-  scheduleRerender,
-} from './hookUtils.js';
-
-// Map global para armazenar contextos
-const contextProviders = new Map();
+import { getCurrentFiber, incrementHookIndex, validateHookCall } from './hookUtils.js';
 
 /**
- * Cria um contexto React
- * @param {*} defaultValue - Valor padrão quando não há provider
- * @returns {Object} Objeto contexto com Provider e Consumer (não usado)
+ * Creates a React context
+ * @param {*} defaultValue - Default value when there is no provider
+ * @returns {Object} Context object with Provider and Consumer (unused)
  */
 export function createContext(defaultValue) {
   const contextId = Symbol('context');
-  
+
   const Provider = ({ value, children }) => {
-    // Armazena o valor do contexto para este provider
+    // Stores the context value for this provider
     const fiber = getCurrentFiber();
     if (fiber) {
       if (!fiber.contextProviders) {
@@ -41,7 +32,7 @@ export function createContext(defaultValue) {
       }
       fiber.contextProviders.set(contextId, value);
     }
-    
+
     return children;
   };
 
@@ -50,16 +41,16 @@ export function createContext(defaultValue) {
     _defaultValue: defaultValue,
     _contextId: contextId,
     Provider,
-    Consumer: null, // Não implementado - usamos useContext
+    Consumer: null, // Not implemented - we use useContext instead
   };
 
   return context;
 }
 
 /**
- * Hook para consumir valores de contexto
- * @param {Object} context - Contexto criado com createContext
- * @returns {*} Valor atual do contexto
+ * Hook for consuming context values
+ * @param {Object} context - Context created with createContext
+ * @returns {*} Current context value
  */
 export function useContext(context) {
   validateHookCall('useContext');
@@ -69,18 +60,17 @@ export function useContext(context) {
   }
 
   const fiber = getCurrentFiber();
-  const hookIndex = getCurrentHookIndex();
 
   // Validate fiber again and initialize hooks if needed
   if (!fiber) {
     throw new Error('useContext: must be called within a component');
   }
-  
+
   if (!fiber.hooks) {
     fiber.hooks = [];
   }
 
-  // Procura o valor do contexto subindo na árvore de fibers
+  // Looks for the context value by walking up the fiber tree
   let currentFiber = fiber;
   let contextValue = context._defaultValue;
 
@@ -92,13 +82,13 @@ export function useContext(context) {
     currentFiber = currentFiber.parent;
   }
 
-  // Cria hook para esta renderização
+  // Creates the hook for this render
   const hook = {
     context,
     value: contextValue,
   };
 
-  // Adiciona hook à lista do fiber
+  // Adds the hook to the fiber's list
   fiber.hooks.push(hook);
   incrementHookIndex();
 
@@ -106,8 +96,9 @@ export function useContext(context) {
 }
 
 /**
- * Limpa todos os contextos (usado em testes)
+ * No-op kept for backward compatibility with existing test setup/teardown.
+ * Context values live on the fiber tree itself (see createContext's Provider
+ * above), so there is no module-level cache left to clear between tests.
  */
-export function clearContextState() {
-  contextProviders.clear();
-}
+// eslint-disable-next-line no-empty-function -- intentional no-op, see comment above
+export function clearContextState() {}

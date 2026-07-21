@@ -1,6 +1,6 @@
 /**
  * ESLint Flat Config
- * Configuração moderna do ESLint com suporte a ESM e JSX
+ * Modern ESLint configuration with ESM and JSX support
  */
 
 import js from '@eslint/js';
@@ -8,13 +8,13 @@ import prettier from 'eslint-config-prettier';
 import babelParser from '@babel/eslint-parser';
 
 export default [
-  // Configuração base recomendada do ESLint
+  // Recommended base ESLint configuration
   js.configs.recommended,
 
-  // Desabilita regras que conflitam com Prettier
+  // Disables rules that conflict with Prettier
   prettier,
 
-  // Configuração personalizada
+  // Custom configuration
   {
     files: ['**/*.js'],
 
@@ -22,7 +22,7 @@ export default [
       ecmaVersion: 2024,
       sourceType: 'module',
       globals: {
-        // Globals do browser
+        // Browser globals
         document: 'readonly',
         window: 'readonly',
         console: 'readonly',
@@ -35,14 +35,15 @@ export default [
         HTMLElement: 'readonly',
         Text: 'readonly',
         Event: 'readonly',
+        Node: 'readonly',
 
-        // Globals customizados do MiniReact
+        // Custom MiniReact globals
         global: 'writable',
       },
     },
 
     rules: {
-      // Regras de estilo (que não conflitam com Prettier)
+      // Style rules (that don't conflict with Prettier)
       camelcase: ['error', { properties: 'never' }],
       'consistent-return': 'error',
       curly: ['error', 'multi-line'],
@@ -51,7 +52,7 @@ export default [
       eqeqeq: ['error', 'always', { null: 'ignore' }],
       'guard-for-in': 'error',
       'no-alert': 'warn',
-      'no-console': 'off', // Permitir console para desenvolvimento
+      'no-console': 'off', // Allow console for development
       'no-else-return': 'error',
       'no-empty-function': 'error',
       'no-eval': 'error',
@@ -59,7 +60,7 @@ export default [
       'no-extra-bind': 'error',
       'no-implicit-coercion': 'error',
       'no-implied-eval': 'error',
-      'no-invalid-this': 'off', // Necessário para classes
+      'no-invalid-this': 'off', // Required for classes
       'no-lone-blocks': 'error',
       'no-loop-func': 'error',
       'no-new': 'error',
@@ -85,7 +86,7 @@ export default [
       'vars-on-top': 'error',
       yoda: 'error',
 
-      // Regras de ES6+
+      // ES6+ rules
       'arrow-body-style': ['error', 'as-needed'],
       'no-confusing-arrow': 'error',
       'no-duplicate-imports': 'error',
@@ -101,7 +102,7 @@ export default [
       'rest-spread-spacing': 'error',
       'template-curly-spacing': 'error',
 
-      // Regras específicas do projeto
+      // Project-specific rules
       'no-unused-vars': [
         'error',
         {
@@ -112,7 +113,7 @@ export default [
     },
   },
 
-  // Configuração para arquivos JSX
+  // Configuration for JSX files
   {
     files: ['**/*.jsx'],
 
@@ -127,7 +128,7 @@ export default [
         },
       },
       globals: {
-        // Globals do browser
+        // Browser globals
         document: 'readonly',
         window: 'readonly',
         console: 'readonly',
@@ -145,7 +146,7 @@ export default [
     },
 
     rules: {
-      // Regras básicas para JSX - components that are used in JSX
+      // Basic rules for JSX - components that are used in JSX
       'no-unused-vars': [
         'error',
         {
@@ -159,19 +160,40 @@ export default [
       radix: 'error',
       'prefer-const': 'error',
       'no-console': 'off',
-      // Desabilitar algumas regras que podem conflitar com JSX
+      // Disable some rules that can conflict with JSX
       'no-unused-expressions': ['error', { allowShortCircuit: true, allowTernary: true }],
     },
   },
 
-  // Ignorar arquivos de exemplo e documentação
+  // Configuration for Jest test files
+  {
+    files: ['tests/**/*.js'],
+
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        test: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        jest: 'readonly',
+        require: 'readonly',
+        Node: 'readonly',
+      },
+    },
+  },
+
+  // Ignore example and documentation files
   {
     ignores: [
       'examples/**/*.html',
       'docs/**',
       'node_modules/**',
       '*.config.js',
-      'examples/jsx/app.js', // Este é o arquivo transpilado, não o fonte
+      'examples/jsx/app.js', // This is the transpiled file, not the source
     ],
   },
 ];

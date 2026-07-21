@@ -1,30 +1,29 @@
 /**
- * @fileoverview Implementação do hook useEffect
+ * @fileoverview Implementation of the useEffect hook
  * @module hooks/useEffect
  * @description
- * Implementa o hook useEffect para gerenciar efeitos colaterais em componentes funcionais.
+ * Implements the useEffect hook for managing side effects in functional components.
  *
- * O useEffect permite executar código após a renderização do componente,
- * substituindo os métodos de ciclo de vida dos componentes de classe.
- * É usado para operações como fetch de dados, subscrições, timers e
- * manipulação direta do DOM.
+ * useEffect lets you run code after the component renders, replacing
+ * the lifecycle methods of class components. It is used for operations
+ * such as data fetching, subscriptions, timers, and direct DOM manipulation.
  *
- * **Características:**
- * - Execução após commit do DOM
- * - Sistema de dependências para controle de execução
- * - Funções de cleanup para limpeza de recursos
- * - Suporte a múltiplos efeitos por componente
+ * **Features:**
+ * - Runs after the DOM commit
+ * - Dependency system to control when it runs
+ * - Cleanup functions to release resources
+ * - Support for multiple effects per component
  *
- * **Ciclo de Vida:**
- * 1. Efeito registrado durante render
- * 2. Executado após commit do DOM
- * 3. Cleanup executado antes do próximo efeito
- * 4. Cleanup final na desmontagem do componente
+ * **Lifecycle:**
+ * 1. Effect registered during render
+ * 2. Run after the DOM commit
+ * 3. Cleanup run before the next effect
+ * 4. Final cleanup on component unmount
  *
- * **Regras de Dependências:**
- * - `undefined` ou sem array: Executa após cada render
- * - `[]` array vazio: Executa apenas na montagem
- * - `[deps]` com valores: Executa quando deps mudam
+ * **Dependency Rules:**
+ * - `undefined` or no array: runs after every render
+ * - `[]` empty array: runs only on mount
+ * - `[deps]` with values: runs when deps change
  */
 
 import {
@@ -36,102 +35,68 @@ import {
 } from './hookUtils.js';
 
 /**
- * Compara arrays de dependências de forma otimizada
- * @param {Array<any>} deps - Dependências atuais
- * @param {Array<any>} oldDeps - Dependências anteriores
- * @returns {boolean} true se as dependências mudaram
- */
-function areDependenciesChanged(deps, oldDeps) {
-  if (!deps || !oldDeps) return true;
-  if (deps.length !== oldDeps.length) return true;
-
-  // Comparação otimizada usando Object.is para valores primitivos
-  return deps.some((dep, i) => !Object.is(dep, oldDeps[i]));
-}
-
-/**
- * Executa cleanup function se existir
- * @param {function|null} cleanup - Função de limpeza
- */
-function executeCleanup(cleanup) {
-  if (cleanup && typeof cleanup === 'function') {
-    try {
-      cleanup();
-    } catch (error) {
-      console.error('Error in useEffect cleanup:', error);
-    }
-  }
-}
-
-/**
- * Hook para executar efeitos colaterais em componentes funcionais
+ * Hook for running side effects in functional components
  *
  * @description
- * Permite executar código após a renderização do componente. Útil para
- * operações como chamadas a APIs, manipulação direta do DOM, timers,
- * e inscrições em eventos. Suporta limpeza através de função de retorno.
+ * Lets you run code after the component renders. Useful for
+ * operations such as API calls, direct DOM manipulation, timers,
+ * and event subscriptions. Supports cleanup via a returned function.
  *
- * @param {function():void|function():void} effect - Função de efeito a ser executada
- * @param {Array<any>} [deps] - Array de dependências. Se omitido, executa sempre. Se vazio, executa apenas uma vez
+ * @param {function():void|function():void} effect - Effect function to run
+ * @param {Array<any>} [deps] - Dependency array. If omitted, always runs. If empty, runs only once
  *
  * @example
- * // Executar apenas uma vez (componentDidMount)
+ * // Run only once (componentDidMount)
  * useEffect(() => {
- *   console.log('Componente montado');
+ *   console.log('Component mounted');
  *
  *   return () => {
- *     console.log('Componente desmontado');
+ *     console.log('Component unmounted');
  *   };
  * }, []);
  *
  * @example
- * // Executar quando dependência mudar
+ * // Run when a dependency changes
  * useEffect(() => {
  *   const timer = setTimeout(() => {
- *     console.log(`Contagem: ${count}`);
+ *     console.log(`Count: ${count}`);
  *   }, 1000);
  *
  *   return () => clearTimeout(timer);
  * }, [count]);
  *
  * @example
- * // Executar sempre após renderização
+ * // Always run after render
  * useEffect(() => {
- *   console.log('Componente renderizado');
+ *   console.log('Component rendered');
  * });
  */
 export function useEffect(effect, deps) {
-  // Validação de entrada
+  // Input validation
   if (typeof effect !== 'function') {
     throw new Error('useEffect: effect must be a function');
   }
 
-  // Valida se está sendo chamado dentro de um componente
+  // Validates that this is being called within a component
   validateHookCall('useEffect');
 
-  // Obtém o fiber e índice atuais
+  // Gets the current fiber and index
   const wipFiber = getCurrentFiber();
   const hookIndex = getCurrentHookIndex();
 
-  // Obtém o hook anterior se existir
+  // Gets the previous hook, if any
   const oldHook = getPreviousHook(wipFiber, hookIndex);
 
-  // Verifica se as dependências mudaram
-  // Se deps é undefined, sempre executa. Se deps é array, compara com anterior
-  const hasChanged = deps === undefined 
-    ? true  // Sem deps array: executa sempre
-    : !oldHook || areDependenciesChanged(deps, oldHook.deps);  // Com deps array: compara
-
-  // Cria novo hook
+  // Creates the new hook. Whether it actually needs to run is decided later,
+  // during the commit phase, by comparing this hook's deps with oldHook's.
   const hook = {
     tag: 'effect',
-    effect: effect,
+    effect,
     cleanup: oldHook?.cleanup || null,
     deps: deps || null,
-    hasChanged,
   };
 
-  // Adiciona hook à lista do fiber
+  // Adds the hook to the fiber's list
   wipFiber.hooks.push(hook);
   incrementHookIndex();
 }

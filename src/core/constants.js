@@ -1,40 +1,40 @@
 /**
- * @fileoverview Constantes compartilhadas do MiniReact
+ * @fileoverview Shared constants for MiniReact
  * @module core/constants
  * @description
- * Define constantes globais utilizadas em todo o framework MiniReact.
+ * Defines global constants used throughout the MiniReact framework.
  *
- * Este módulo centraliza valores constantes para garantir consistência
- * e facilitar manutenção. Inclui tags de efeito para reconciliação,
- * tipos especiais de elementos e outras constantes do sistema.
+ * This module centralizes constant values to ensure consistency
+ * and ease maintenance. It includes effect tags for reconciliation,
+ * special element types, and other system constants.
  *
- * **Constantes Exportadas:**
- * - `TEXT_ELEMENT`: Tipo especial para nós de texto
- * - `EFFECT_TAGS`: Enum com tags para marcar mudanças no DOM
- * - `Fragment`: Símbolo para componentes fragment
+ * **Exported Constants:**
+ * - `TEXT_ELEMENT`: Special type for text nodes
+ * - `EFFECT_TAGS`: Enum with tags for marking DOM changes
+ * - `Fragment`: Symbol for fragment components
  */
 
 /**
- * Tipos de efeitos que podem ser aplicados a um fiber
+ * Types of effects that can be applied to a fiber
  * @enum {string}
  */
 export const EFFECT_TAGS = {
-  /** Inserir novo elemento no DOM */
+  /** Insert new element into the DOM */
   PLACEMENT: 'PLACEMENT',
-  /** Atualizar elemento existente */
+  /** Update existing element */
   UPDATE: 'UPDATE',
-  /** Remover elemento do DOM */
+  /** Remove element from the DOM */
   DELETION: 'DELETION',
 };
 
 /**
- * Tipo especial para elementos de texto
+ * Special type for text elements
  * @const {string}
  */
 export const TEXT_ELEMENT = 'TEXT_ELEMENT';
 
 /**
- * Símbolo para identificar fragmentos
+ * Symbol used to identify fragments
  * @const {Symbol}
  */
 export const Fragment = Symbol('Fragment');

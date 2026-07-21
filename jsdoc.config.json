@@ -38,7 +38,7 @@
     "dictionaries": ["jsdoc", "closure"]
   },
   "metadata": {
-    "title": "MiniReact - Documentação",
-    "description": "Framework React-like simplificado para aprendizado"
+    "title": "MiniReact - Documentation",
+    "description": "Simplified React-like framework for learning"
   }
 }

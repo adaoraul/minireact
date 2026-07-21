@@ -9,12 +9,12 @@ function Counter() {
 
   return (
     <div className="demo-card">
-      <h2>⚡ Contador Simples</h2>
-      <p>Valor: {count}</p>
+      <h2>⚡ Simple Counter</h2>
+      <p>Value: {count}</p>
       <div className="button-group">
-        <button onClick={() => setCount(count + 1)}>Incrementar</button>
-        <button onClick={() => setCount(count - 1)}>Decrementar</button>
-        <button onClick={() => setCount(0)}>Resetar</button>
+        <button onClick={() => setCount(count + 1)}>Increment</button>
+        <button onClick={() => setCount(count - 1)}>Decrement</button>
+        <button onClick={() => setCount(0)}>Reset</button>
       </div>
     </div>
   );
@@ -23,8 +23,8 @@ function Counter() {
 // ==================== Todo List Component ====================
 function TodoList() {
   const [todos, setTodos] = useState([
-    { id: 1, text: 'Aprender MiniReact', done: false },
-    { id: 2, text: 'Construir um app', done: false },
+    { id: 1, text: 'Learn MiniReact', done: false },
+    { id: 2, text: 'Build an app', done: false },
   ]);
   const [inputValue, setInputValue] = useState('');
 
@@ -45,15 +45,15 @@ function TodoList() {
 
   return (
     <div className="demo-card">
-      <h2>📝 Lista de Tarefas</h2>
+      <h2>📝 Todo List</h2>
       <div className="input-group">
         <input
           type="text"
           value={inputValue}
           onInput={(e) => setInputValue(e.target.value)}
-          placeholder="Nova tarefa..."
+          placeholder="New task..."
         />
-        <button onClick={addTodo}>Adicionar</button>
+        <button onClick={addTodo}>Add</button>
       </div>
       <ul className="todo-list">
         {todos.map((todo) => (
@@ -96,11 +96,11 @@ function Timer() {
 
   return (
     <div className="demo-card">
-      <h2>⏱️ Timer com useEffect</h2>
+      <h2>⏱️ Timer with useEffect</h2>
       <div className="timer-display">{formatTime(seconds)}</div>
       <div className="button-group">
-        <button onClick={toggle}>{isRunning ? 'Pausar' : 'Iniciar'}</button>
-        <button onClick={reset}>Resetar</button>
+        <button onClick={toggle}>{isRunning ? 'Pause' : 'Start'}</button>
+        <button onClick={reset}>Reset</button>
       </div>
     </div>
   );
@@ -130,16 +130,16 @@ function DynamicList() {
 
   return (
     <div className="demo-card">
-      <h2>🔀 Lista Dinâmica com Keys</h2>
+      <h2>🔀 Dynamic List with Keys</h2>
       <div className="button-group">
-        <button onClick={shuffle}>Embaralhar</button>
-        <button onClick={addItem}>Adicionar Item</button>
+        <button onClick={shuffle}>Shuffle</button>
+        <button onClick={addItem}>Add Item</button>
       </div>
       <ul className="dynamic-list">
         {items.map((item) => (
           <li key={item.id}>
             {item.name} (ID: {item.id})
-            <button onClick={() => removeItem(item.id)}>Remover</button>
+            <button onClick={() => removeItem(item.id)}>Remove</button>
           </li>
         ))}
       </ul>
@@ -180,7 +180,7 @@ function ProgressBar() {
 
   return (
     <div className="demo-card">
-      <h2>📊 Barra de Progresso</h2>
+      <h2>📊 Progress Bar</h2>
       <div className="progress-container">
         <div className="progress-bar" style={`width: ${progress}%`}>
           {progress}%
@@ -188,12 +188,12 @@ function ProgressBar() {
       </div>
       <div className="button-group">
         <button onClick={start} disabled={isRunning && progress < 100}>
-          Iniciar
+          Start
         </button>
         <button onClick={pause} disabled={!isRunning || progress >= 100}>
-          {isRunning ? 'Pausar' : 'Continuar'}
+          {isRunning ? 'Pause' : 'Continue'}
         </button>
-        <button onClick={reset}>Resetar</button>
+        <button onClick={reset}>Reset</button>
       </div>
     </div>
   );
@@ -217,15 +217,15 @@ function ControlledForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // eslint-disable-next-line no-alert
-    window.alert(`Formulário enviado:\n${JSON.stringify(formData, null, 2)}`);
+    window.alert(`Form submitted:\n${JSON.stringify(formData, null, 2)}`);
   };
 
   return (
     <div className="demo-card">
-      <h2>📋 Formulário Controlado</h2>
+      <h2>📋 Controlled Form</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Nome:</label>
+          <label>Name:</label>
           <input type="text" value={formData.name} onInput={handleChange('name')} required />
         </div>
         <div className="form-group">
@@ -233,10 +233,10 @@ function ControlledForm() {
           <input type="email" value={formData.email} onInput={handleChange('email')} required />
         </div>
         <div className="form-group">
-          <label>Mensagem:</label>
+          <label>Message:</label>
           <textarea value={formData.message} onInput={handleChange('message')} rows="4" required />
         </div>
-        <button type="submit">Enviar</button>
+        <button type="submit">Submit</button>
       </form>
     </div>
   );
@@ -277,14 +277,14 @@ function NotificationSystem() {
 
   const addNotification = (type) => {
     const messages = {
-      success: 'Operação realizada com sucesso!',
-      warning: 'Atenção: Verifique os dados.',
-      error: 'Erro: Algo deu errado!',
-      info: 'Informação: Novo recurso disponível.',
+      success: 'Operation completed successfully!',
+      warning: 'Warning: Check the data.',
+      error: 'Error: Something went wrong!',
+      info: 'Info: New feature available.',
     };
     dispatch({ type: 'ADD', message: messages[type], notificationType: type });
 
-    // Auto-remove após 3 segundos
+    // Auto-remove after 3 seconds
     setTimeout(() => {
       dispatch({ type: 'REMOVE', id: state.nextId });
     }, 3000);
@@ -292,16 +292,16 @@ function NotificationSystem() {
 
   return (
     <div className="demo-card">
-      <h2>🔔 Sistema de Notificações</h2>
+      <h2>🔔 Notification System</h2>
       <div className="button-group">
         <button onClick={() => addNotification('success')} className="btn-success">
-          Sucesso
+          Success
         </button>
         <button onClick={() => addNotification('warning')} className="btn-warning">
-          Aviso
+          Warning
         </button>
         <button onClick={() => addNotification('error')} className="btn-error">
-          Erro
+          Error
         </button>
         <button onClick={() => addNotification('info')} className="btn-info">
           Info
@@ -323,9 +323,9 @@ function NotificationSystem() {
 function ExpensiveCalculation() {
   const [number, setNumber] = useState(0);
 
-  // Memoriza o cálculo caro
+  // Memoizes the expensive calculation
   const expensiveValue = useMemo(() => {
-    console.log('Calculando valor caro...');
+    console.log('Calculating expensive value...');
     let result = 0;
     for (let i = 0; i <= number * 1000000; i++) {
       result += i;
@@ -333,7 +333,7 @@ function ExpensiveCalculation() {
     return result;
   }, [number]);
 
-  // Memoriza o callback
+  // Memoizes the callback
   const getItems = useCallback(() => {
     return [number, number + 1, number + 2];
   }, [number]);
@@ -350,7 +350,7 @@ function ExpensiveCalculation() {
           max="100"
         />
       </div>
-      <p>Valor calculado: {expensiveValue}</p>
+      <p>Calculated value: {expensiveValue}</p>
       <p>Items: {getItems().join(', ')}</p>
     </div>
   );
@@ -374,8 +374,8 @@ class ClassCounter extends Component {
   render() {
     return (
       <div className="demo-card">
-        <h2>🎯 Componente de Classe</h2>
-        <p>Contador: {this.state.count}</p>
+        <h2>🎯 Class Component</h2>
+        <p>Counter: {this.state.count}</p>
         <div className="button-group">
           <button onClick={this.increment}>+1</button>
           <button onClick={this.decrement}>-1</button>
@@ -390,8 +390,8 @@ function App() {
   return (
     <div className="container">
       <header>
-        <h1>🚀 MiniReact com JSX - Demonstrações</h1>
-        <p>Exemplos práticos usando sintaxe JSX com MiniReact</p>
+        <h1>🚀 MiniReact with JSX - Demos</h1>
+        <p>Practical examples using JSX syntax with MiniReact</p>
       </header>
 
       <main className="demos-grid">
@@ -407,8 +407,8 @@ function App() {
       </main>
 
       <footer>
-        <p>MiniReact v2.0 - Framework educacional inspirado no React</p>
-        <p>Usando JSX com Babel para transpilação</p>
+        <p>MiniReact v2.0 - Educational framework inspired by React</p>
+        <p>Using JSX with Babel for transpilation</p>
       </footer>
     </div>
   );

@@ -1,24 +1,24 @@
 /**
- * @fileoverview Implementação do hook useReducer
+ * @fileoverview Implementation of the useReducer hook
  * @module hooks/useReducer
  * @description
- * Implementa o hook useReducer para gerenciamento de estado complexo com padrão Redux.
+ * Implements the useReducer hook for managing complex state with a Redux-like pattern.
  *
- * O useReducer é uma alternativa ao useState para gerenciar estado complexo,
- * especialmente útil quando o próximo estado depende do anterior ou quando
- * há múltiplas sub-valores de estado relacionados.
+ * useReducer is an alternative to useState for managing complex state,
+ * especially useful when the next state depends on the previous one or when
+ * there are multiple related sub-values of state.
  *
- * **Vantagens sobre useState:**
- * - Lógica de atualização centralizada no reducer
- * - Melhor para estado com múltiplas propriedades
- * - Padrão previsível de atualização (actions)
- * - Facilita testes unitários do reducer
+ * **Advantages over useState:**
+ * - Update logic centralized in the reducer
+ * - Better for state with multiple properties
+ * - Predictable update pattern (actions)
+ * - Makes it easier to unit test the reducer
  *
- * **Padrão Redux:**
- * - Estado imutável
- * - Ações descrevem "o que aconteceu"
- * - Reducer especifica "como o estado muda"
- * - Dispatch envia ações para o reducer
+ * **Redux Pattern:**
+ * - Immutable state
+ * - Actions describe "what happened"
+ * - The reducer specifies "how the state changes"
+ * - Dispatch sends actions to the reducer
  */
 
 import {
@@ -30,37 +30,29 @@ import {
   scheduleRerender,
 } from './hookUtils.js';
 
-// Armazena filas de ações por fiber + hook index para persistir entre renders
-const actionQueues = new Map();
-// Armazena o estado atual de cada hook para persistir entre renders
-const reducerStates = new Map();
-// Armazena dispatch functions para manter referência estável
-const dispatchers = new Map();
-
 /**
- * Limpa todos os estados persistentes dos hooks (usado em testes)
+ * No-op kept for backward compatibility with existing test setup/teardown.
+ * State now lives entirely on the fiber tree (see useReducer below), so there
+ * is no module-level cache left to clear between tests or renders.
  */
-export function clearReducerState() {
-  actionQueues.clear();
-  reducerStates.clear();
-  dispatchers.clear();
-}
+// eslint-disable-next-line no-empty-function -- intentional no-op, see comment above
+export function clearReducerState() {}
 
 /**
- * Hook para gerenciar estado complexo com padrão reducer
+ * Hook for managing complex state with the reducer pattern
  *
  * @description
- * Uma alternativa ao useState para gerenciar estado complexo. Útil quando
- * o próximo estado depende do anterior ou quando há múltiplas sub-valores
- * de estado. Segue o padrão Redux de ações e reducers.
+ * An alternative to useState for managing complex state. Useful when
+ * the next state depends on the previous one or when there are multiple
+ * sub-values of state. Follows the Redux pattern of actions and reducers.
  *
- * @template S - Tipo do estado
- * @template A - Tipo da ação
+ * @template S - State type
+ * @template A - Action type
  *
- * @param {function(S, A):S} reducer - Função reducer que recebe estado e ação
- * @param {S} initialState - Estado inicial
- * @param {function(S):S} [init] - Função de inicialização lazy opcional
- * @returns {Array} Tupla com estado atual e função dispatch
+ * @param {function(S, A):S} reducer - Reducer function that receives state and action
+ * @param {S} initialState - Initial state
+ * @param {function(S):S} [init] - Optional lazy initialization function
+ * @returns {Array} Tuple with the current state and the dispatch function
  *
  * @example
  * const todoReducer = (state, action) => {
@@ -82,12 +74,12 @@ export function clearReducerState() {
  *   };
  *
  *   return (
- *     // JSX do componente
+ *     // component JSX
  *   );
  * }
  *
  * @example
- * // Com inicialização lazy
+ * // With lazy initialization
  * const [state, dispatch] = useReducer(
  *   reducer,
  *   props.initialCount,
@@ -95,74 +87,46 @@ export function clearReducerState() {
  * );
  */
 export function useReducer(reducer, initialState, init) {
-  // Valida se está sendo chamado dentro de um componente
+  // Validates that this is being called within a component
   validateHookCall('useReducer');
 
-  // Obtém o fiber e índice atuais
+  // Gets the current fiber and index
   const wipFiber = getCurrentFiber();
   const hookIndex = getCurrentHookIndex();
 
-  // Cria chave única para este hook (fiber + index)  
-  const hookKey = `${wipFiber.type?.name || wipFiber.type?.toString() || 'anonymous'}_${hookIndex}`;
-  
-  // Obtém ou cria a fila de ações para este hook
-  if (!actionQueues.has(hookKey)) {
-    actionQueues.set(hookKey, []);
-  }
-  const queue = actionQueues.get(hookKey);
-
-  // Determina o estado inicial - usa estado persistente ou inicial
-  let currentState;
-  if (reducerStates.has(hookKey)) {
-    // Usa estado persistente
-    currentState = reducerStates.get(hookKey);
-  } else {
-    // Primeiro uso - usa valor inicial (com lazy initialization se fornecida)
-    currentState = init ? init(initialState) : initialState;
-    reducerStates.set(hookKey, currentState);
-  }
-
-  // Processa ações pendentes na fila
-  const actions = [...queue];
-  queue.length = 0; // Limpa a fila
-  
-  actions.forEach((action) => {
-    currentState = reducer(currentState, action);
-  });
-
-  // Salva o estado atualizado
-  reducerStates.set(hookKey, currentState);
-
-  // Obtém ou cria dispatch function (mantém referência estável)
-  let dispatch;
-  if (dispatchers.has(hookKey)) {
-    dispatch = dispatchers.get(hookKey);
-  } else {
-    dispatch = (action) => {
-      // Adiciona ação à fila
-      const actionQueue = actionQueues.get(hookKey);
-      if (actionQueue) {
-        actionQueue.push(action);
-      }
-
-      // Agenda re-renderização
-      scheduleRerender();
-    };
-    dispatchers.set(hookKey, dispatch);
-  }
-
-  // Cria hook para esta renderização
-  const hook = {
-    state: currentState,
-    dispatch,
+  // Gets this hook's own previous instance from the fiber tree, if any. Reusing
+  // the same hook record (rather than rebuilding one from copied fields) keeps
+  // state, queue and dispatch tied to this specific component instance - and
+  // keeps dispatch correct even if a stale reference to it is held across renders.
+  const oldHook = getPreviousHook(wipFiber, hookIndex);
+  const hook = oldHook || {
+    state: init ? init(initialState) : initialState,
+    queue: [],
   };
 
-  // Garante que o fiber tem array de hooks
+  // Processes pending actions accumulated since the last render
+  const actions = hook.queue.splice(0);
+  actions.forEach((action) => {
+    hook.state = reducer(hook.state, action);
+  });
+
+  // Creates the dispatch function once; later renders reuse the same instance
+  if (!hook.dispatch) {
+    hook.dispatch = (action) => {
+      // Queues the action to be applied on the next render
+      hook.queue.push(action);
+
+      // Schedules a re-render
+      scheduleRerender();
+    };
+  }
+
+  // Ensures the fiber has a hooks array
   wipFiber.hooks = wipFiber.hooks || [];
 
-  // Define hook no índice correto (não adiciona no final)
+  // Sets the hook at the correct index (does not push to the end)
   wipFiber.hooks[hookIndex] = hook;
   incrementHookIndex();
 
-  return [currentState, dispatch];
+  return [hook.state, hook.dispatch];
 }

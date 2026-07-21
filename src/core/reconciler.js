@@ -1,29 +1,29 @@
 /**
- * @fileoverview Algoritmo de reconciliação do MiniReact
+ * @fileoverview MiniReact's reconciliation algorithm
  * @module core/reconciler
  * @description
- * Implementa o algoritmo de reconciliação (diffing) do MiniReact.
+ * Implements MiniReact's reconciliation (diffing) algorithm.
  *
- * A reconciliação é o processo de comparar a árvore Virtual DOM anterior
- * com a nova para determinar as mudanças mínimas necessárias no DOM real.
+ * Reconciliation is the process of comparing the previous Virtual DOM tree
+ * with the new one to determine the minimal changes needed on the real DOM.
  *
- * **Princípios do Algoritmo:**
- * - Comparação por nível (não compara entre níveis diferentes)
- * - Tipos diferentes resultam em subárvore completamente nova
- * - Keys identificam elementos únicos em listas
- * - Complexidade O(n) ao invés de O(n³)
+ * **Algorithm Principles:**
+ * - Level-by-level comparison (does not compare across different levels)
+ * - Different types result in a completely new subtree
+ * - Keys identify unique elements in lists
+ * - O(n) complexity instead of O(n³)
  *
- * **Tags de Efeito:**
- * - `PLACEMENT`: Novo elemento a ser inserido
- * - `UPDATE`: Elemento existente com props alteradas
- * - `DELETION`: Elemento a ser removido
+ * **Effect Tags:**
+ * - `PLACEMENT`: New element to be inserted
+ * - `UPDATE`: Existing element with changed props
+ * - `DELETION`: Element to be removed
  *
  * @example
- * // O reconciliador é usado internamente pelo fiber
- * // Ele compara elementos e marca mudanças:
+ * // The reconciler is used internally by fiber
+ * // It compares elements and marks changes:
  * // oldFiber: <div className="old">Hello</div>
  * // newElement: <div className="new">World</div>
- * // Resultado: fiber marcado com UPDATE
+ * // Result: fiber marked with UPDATE
  */
 
 import { EFFECT_TAGS } from './constants.js';
@@ -31,30 +31,30 @@ import { createDom } from '../vdom/updateDom.js';
 import { addDeletion } from './fiber.js';
 
 /**
- * Atualiza um componente funcional
+ * Updates a function component
  *
  * @description
- * Processa um componente funcional, executando a função do componente
- * e reconciliando seus filhos com o Virtual DOM anterior.
+ * Processes a function component, executing the component function
+ * and reconciling its children with the previous Virtual DOM.
  *
- * @param {Object} fiber - Fiber do componente funcional
- * @param {Object} fiber.type - Função do componente
- * @param {Object} fiber.props - Propriedades do componente
+ * @param {Object} fiber - Fiber of the function component
+ * @param {Object} fiber.type - Component function
+ * @param {Object} fiber.props - Component properties
  */
 export function updateFunctionComponent(fiber) {
-  // Prepara contexto para hooks
-  // Inicializa array de hooks vazio - hooks são reconstruídos a cada render
-  // O estado persistente é mantido pelos próprios hooks (useState, etc.)
+  // Prepare context for hooks
+  // Initialize an empty hooks array - hooks are rebuilt on every render
+  // Persistent state is kept by the hooks themselves (useState, etc.)
   fiber.hooks = [];
 
   let children;
 
-  // Verifica se é um componente de classe
+  // Check whether it is a class component
   if (fiber.type.prototype && fiber.type.prototype.render) {
-    // Componente de classe
+    // Class component
     let instance;
 
-    // Reutiliza instância existente ou cria nova
+    // Reuse the existing instance or create a new one
     if (fiber.alternate && fiber.alternate.instance) {
       ({ instance } = fiber.alternate);
       instance.props = fiber.props;
@@ -62,64 +62,71 @@ export function updateFunctionComponent(fiber) {
       instance = new fiber.type(fiber.props);
     }
 
-    // Salva instância no fiber
+    // Save the instance on the fiber
     instance._internalFiber = fiber;
     fiber.instance = instance;
 
-    // Chama render() para obter elementos filhos
+    // Call render() to get the child elements
     children = [instance.render()];
   } else {
-    // Componente funcional
+    // Function component
     const result = fiber.type(fiber.props);
-    // Trata caso onde componente funcional retorna array de elementos
+    // Handle the case where the function component returns an array of elements
     children = Array.isArray(result) ? result : [result];
   }
 
   // Hook cleanup is handled by commit phase runEffects function
 
-  reconcileChildren(fiber, children);
+  reconcileChildrenWithKeys(fiber, children);
 }
 
 /**
- * Atualiza um componente host (elemento DOM)
+ * Updates a host component (DOM element)
  *
  * @description
- * Processa um elemento DOM, criando o nó DOM se necessário
- * e reconciliando seus filhos.
+ * Processes a DOM element, creating the DOM node if necessary
+ * and reconciling its children.
  *
- * @param {Object} fiber - Fiber do elemento DOM
- * @param {string} fiber.type - Tipo do elemento (div, span, etc)
- * @param {Object} fiber.props - Propriedades e filhos do elemento
+ * @param {Object} fiber - Fiber of the DOM element
+ * @param {string} fiber.type - Element type (div, span, etc)
+ * @param {Object} fiber.props - Element properties and children
  */
 export function updateHostComponent(fiber) {
-  // Cria DOM node se não existir, ou reutiliza do fiber anterior APENAS se for do mesmo tipo
+  // Create the DOM node if it doesn't exist, or reuse it from the previous fiber ONLY if it's the same type
   if (!fiber.dom) {
-    if (fiber.alternate && fiber.alternate.dom && 
+    if (fiber.alternate && fiber.alternate.dom &&
         (!fiber.alternate.type || fiber.alternate.type === fiber.type)) {
-      // Reutiliza DOM do fiber anterior apenas se for do mesmo tipo ou tipo não especificado
+      // Reuse the DOM from the previous fiber only if it's the same type, or the type isn't specified
       fiber.dom = fiber.alternate.dom;
     } else {
-      // Cria novo DOM node (novo elemento ou tipo mudou)
+      // Create a new DOM node (new element or the type changed)
       fiber.dom = createDom(fiber);
     }
   }
-  // Reconcilia filhos
-  reconcileChildren(fiber, fiber.props.children);
+  // Reconcile children
+  reconcileChildrenWithKeys(fiber, fiber.props.children);
 }
 
 /**
- * Reconcilia filhos de um fiber com novos elementos
+ * Reconciles a fiber's children with new elements by position
  *
  * @description
- * Algoritmo de reconciliação que compara a árvore de fibers anterior
- * com os novos elementos, determinando quais operações DOM são necessárias.
- * Marca fibers com tags de efeito: PLACEMENT, UPDATE ou DELETION.
+ * Reconciliation algorithm that compares the previous fiber tree
+ * with the new elements purely by position, determining which DOM
+ * operations are needed. Marks fibers with effect tags: PLACEMENT,
+ * UPDATE, or DELETION.
  *
- * @param {Object} wipFiber - Fiber pai sendo processado
- * @param {Array} elements - Novos elementos filhos
+ * `updateFunctionComponent` and `updateHostComponent` use
+ * {@link reconcileChildrenWithKeys} instead, since matching by key keeps
+ * list items paired with their own state/DOM node when the list is
+ * reordered. This positional version is kept for cases with no keys
+ * and for direct testing.
+ *
+ * @param {Object} wipFiber - Parent fiber being processed
+ * @param {Array} elements - New child elements
  *
  * @example
- * // Internamente usado durante a renderização
+ * // Positional reconciliation (no keys)
  * reconcileChildren(parentFiber, [
  *   createElement('div', null, 'Hello'),
  *   createElement('span', null, 'World')
@@ -130,22 +137,22 @@ export function reconcileChildren(wipFiber, elements) {
   let oldFiber = wipFiber.alternate && wipFiber.alternate.child;
   let prevSibling = null;
 
-  // Inicializa lista de deleções se não existir
+  // Initialize the deletions list if it doesn't exist
   if (!wipFiber.deletions) {
     wipFiber.deletions = [];
   }
 
-  // Itera sobre elementos novos e fibers antigos em paralelo
+  // Iterate over new elements and old fibers in parallel
   while (index < elements.length || oldFiber != null) {
     const element = elements[index];
     let newFiber = null;
 
-    // Verifica se o tipo é o mesmo para reutilizar o fiber
+    // Check whether the type is the same, to reuse the fiber
     const sameType = oldFiber && element && element.type === oldFiber.type;
-    
+
 
     if (sameType) {
-      // ATUALIZAÇÃO: mesmo tipo, atualiza propriedades
+      // UPDATE: same type, update properties
       newFiber = {
         type: oldFiber.type,
         props: element.props,
@@ -158,7 +165,7 @@ export function reconcileChildren(wipFiber, elements) {
     }
 
     if (element && !sameType) {
-      // INSERÇÃO: novo elemento
+      // INSERTION: new element
       newFiber = {
         type: element.type,
         props: element.props,
@@ -171,29 +178,29 @@ export function reconcileChildren(wipFiber, elements) {
     }
 
     if (oldFiber && !sameType) {
-      // DELEÇÃO: elemento removido
+      // DELETION: removed element
       oldFiber.effectTag = EFFECT_TAGS.DELETION;
 
-      // Adiciona à lista de deleções local do wipFiber
+      // Add to the wipFiber's local deletions list
       wipFiber.deletions.push(oldFiber);
 
-      // Adiciona à lista global de deleções também
+      // Also add to the global deletions list
       addDeletion(oldFiber);
     }
 
-    // Move para próximo fiber antigo
+    // Move to the next old fiber
     if (oldFiber) {
       oldFiber = oldFiber.sibling;
     }
 
-    // Conecta novo fiber à árvore
+    // Attach the new fiber to the tree
     if (index === 0) {
       wipFiber.child = newFiber;
     } else if (element) {
       prevSibling.sibling = newFiber;
     }
 
-    // Define sibling como null explicitamente se não há mais elementos
+    // Explicitly set sibling to null if there are no more elements
     if (newFiber && index === elements.length - 1) {
       newFiber.sibling = null;
     }
@@ -204,17 +211,22 @@ export function reconcileChildren(wipFiber, elements) {
 }
 
 /**
- * Reconcilia filhos com suporte a keys
+ * Reconciles children with key support
  *
  * @description
- * Versão otimizada da reconciliação que usa keys para identificar
- * elementos únicos em listas, permitindo reordenação eficiente.
+ * Optimized version of reconciliation that uses keys to identify
+ * unique elements in lists, allowing efficient reordering. Elements
+ * without a key fall back to matching by their position in the list,
+ * so this is a drop-in replacement for {@link reconcileChildren}.
  *
- * @param {Object} wipFiber - Fiber pai sendo processado
- * @param {Array} elements - Novos elementos filhos
+ * This is the version actually used by `updateFunctionComponent` and
+ * `updateHostComponent` during rendering.
+ *
+ * @param {Object} wipFiber - Parent fiber being processed
+ * @param {Array} elements - New child elements
  *
  * @example
- * // Elementos com keys para lista otimizada
+ * // Elements with keys for an optimized list
  * const items = data.map(item =>
  *   createElement('li', { key: item.id }, item.text)
  * );
@@ -224,12 +236,12 @@ export function reconcileChildrenWithKeys(wipFiber, elements) {
   const oldFiber = wipFiber.alternate && wipFiber.alternate.child;
   let prevSibling = null;
 
-  // Inicializa lista de deleções se não existir
+  // Initialize the deletions list if it doesn't exist
   if (!wipFiber.deletions) {
     wipFiber.deletions = [];
   }
 
-  // Cria mapa de fibers antigos por key para busca eficiente
+  // Build a map of old fibers by key for efficient lookup
   const oldFiberMap = new Map();
   let temp = oldFiber;
   let tempIndex = 0;
@@ -241,7 +253,7 @@ export function reconcileChildrenWithKeys(wipFiber, elements) {
     tempIndex++;
   }
 
-  // Processa elementos novos
+  // Process new elements
   while (index < elements.length) {
     const element = elements[index];
     const elementKey = element?.props?.key ?? index;
@@ -251,7 +263,7 @@ export function reconcileChildrenWithKeys(wipFiber, elements) {
     const sameType = matchingOldFiber && element && element.type === matchingOldFiber.type;
 
     if (sameType) {
-      // Reutiliza fiber existente
+      // Reuse the existing fiber
       newFiber = {
         type: matchingOldFiber.type,
         props: element.props,
@@ -263,7 +275,7 @@ export function reconcileChildrenWithKeys(wipFiber, elements) {
       };
       oldFiberMap.delete(elementKey);
     } else if (element) {
-      // Cria novo fiber
+      // Create a new fiber
       newFiber = {
         type: element.type,
         props: element.props,
@@ -275,14 +287,14 @@ export function reconcileChildrenWithKeys(wipFiber, elements) {
       };
     }
 
-    // Conecta fiber à árvore
+    // Attach the fiber to the tree
     if (index === 0) {
       wipFiber.child = newFiber;
     } else {
       prevSibling.sibling = newFiber;
     }
 
-    // Define sibling como null explicitamente se não há mais elementos
+    // Explicitly set sibling to null if there are no more elements
     if (newFiber && index === elements.length - 1) {
       newFiber.sibling = null;
     }
@@ -291,14 +303,14 @@ export function reconcileChildrenWithKeys(wipFiber, elements) {
     index++;
   }
 
-  // Marca fibers não utilizados para deleção
+  // Mark unused fibers for deletion
   oldFiberMap.forEach((fiber) => {
     fiber.effectTag = EFFECT_TAGS.DELETION;
-    
-    // Adiciona à lista de deleções local do wipFiber
+
+    // Add to the wipFiber's local deletions list
     wipFiber.deletions.push(fiber);
-    
-    // Adiciona à lista global de deleções também
+
+    // Also add to the global deletions list
     if (typeof window !== 'undefined') {
       if (!window.minireact.deletions) window.minireact.deletions = [];
       window.minireact.deletions.push(fiber);
@@ -307,47 +319,47 @@ export function reconcileChildrenWithKeys(wipFiber, elements) {
 }
 
 /**
- * Informações sobre o algoritmo de Reconciliação
+ * Information about the Reconciliation algorithm
  *
  * @description
- * A reconciliação é o processo de comparar a árvore Virtual DOM anterior
- * com a nova árvore para determinar as mudanças mínimas necessárias no DOM real.
+ * Reconciliation is the process of comparing the previous Virtual DOM tree
+ * with the new tree to determine the minimal changes needed on the real DOM.
  *
- * Princípios fundamentais:
+ * Core principles:
  *
- * 1. **Comparação por nível**: Compara elementos no mesmo nível da árvore
- * 2. **Tipos diferentes = subárvore nova**: Se o tipo mudou, recria toda a subárvore
- * 3. **Keys para listas**: Identifica elementos únicos em listas para reordenação eficiente
+ * 1. **Level-by-level comparison**: Compares elements at the same tree level
+ * 2. **Different types = new subtree**: If the type changed, the whole subtree is recreated
+ * 3. **Keys for lists**: Identifies unique elements in lists for efficient reordering
  *
- * Processo de reconciliação:
+ * Reconciliation process:
  *
- * 1. **Comparação de tipos**:
- *    - Mesmo tipo: Atualiza propriedades (UPDATE)
- *    - Tipo diferente: Remove antigo e cria novo (DELETION + PLACEMENT)
+ * 1. **Type comparison**:
+ *    - Same type: Update properties (UPDATE)
+ *    - Different type: Remove the old one and create a new one (DELETION + PLACEMENT)
  *
- * 2. **Reconciliação de filhos**:
- *    - Itera filhos novos e antigos em paralelo
- *    - Usa keys quando disponíveis para matching otimizado
- *    - Marca operações necessárias com effectTags
+ * 2. **Children reconciliation**:
+ *    - Iterates new and old children in parallel
+ *    - Uses keys when available for optimized matching
+ *    - Marks required operations with effectTags
  *
  * 3. **Effect Tags**:
- *    - PLACEMENT: Inserir novo elemento
- *    - UPDATE: Atualizar propriedades
- *    - DELETION: Remover elemento
+ *    - PLACEMENT: Insert new element
+ *    - UPDATE: Update properties
+ *    - DELETION: Remove element
  *
- * Otimizações implementadas:
+ * Implemented optimizations:
  *
- * - **Reutilização de DOM nodes**: Mantém referências DOM quando possível
- * - **Batching**: Acumula mudanças para aplicar de uma vez
- * - **Keys**: Permite reordenação eficiente de listas
- * - **Bailout**: Para reconciliação se não há mudanças
+ * - **DOM node reuse**: Keeps DOM references whenever possible
+ * - **Batching**: Accumulates changes to apply them all at once
+ * - **Keys**: Enables efficient reordering of lists
+ * - **Bailout**: Stops reconciliation if there are no changes
  *
- * Complexidade:
- * - Sem keys: O(n) onde n = número de elementos
- * - Com keys: O(n) com melhor constante para reordenações
+ * Complexity:
+ * - Without keys: O(n) where n = number of elements
+ * - With keys: O(n) with a better constant factor for reordering
  *
- * Diferenças do React real:
- * - React usa heurísticas mais sofisticadas
- * - React tem otimizações para componentes puros
- * - React suporta Suspense e concurrent features
+ * Differences from real React:
+ * - React uses more sophisticated heuristics
+ * - React has optimizations for pure components
+ * - React supports Suspense and concurrent features
  */

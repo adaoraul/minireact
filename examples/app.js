@@ -11,14 +11,14 @@ function Counter() {
   return createElement(
     'div',
     { className: 'demo-card' },
-    createElement('h2', null, '⚡ Contador Simples'),
-    createElement('p', null, 'Valor: ', count),
+    createElement('h2', null, '⚡ Simple Counter'),
+    createElement('p', null, 'Value: ', count),
     createElement(
       'div',
       { className: 'button-group' },
-      createElement('button', { onClick: () => setCount(count + 1) }, 'Incrementar'),
-      createElement('button', { onClick: () => setCount(count - 1) }, 'Decrementar'),
-      createElement('button', { onClick: () => setCount(0) }, 'Resetar')
+      createElement('button', { onClick: () => setCount(count + 1) }, 'Increment'),
+      createElement('button', { onClick: () => setCount(count - 1) }, 'Decrement'),
+      createElement('button', { onClick: () => setCount(0) }, 'Reset')
     )
   );
 }
@@ -26,8 +26,8 @@ function Counter() {
 // ==================== Todo List Component ====================
 function TodoList() {
   const [todos, setTodos] = useState([
-    { id: 1, text: 'Aprender MiniReact', done: false },
-    { id: 2, text: 'Construir um app', done: false },
+    { id: 1, text: 'Learn MiniReact', done: false },
+    { id: 2, text: 'Build an app', done: false },
   ]);
   const [inputValue, setInputValue] = useState('');
 
@@ -49,7 +49,7 @@ function TodoList() {
   return createElement(
     'div',
     { className: 'demo-card' },
-    createElement('h2', null, '📝 Lista de Tarefas'),
+    createElement('h2', null, '📝 Todo List'),
     createElement(
       'div',
       { className: 'input-group' },
@@ -57,9 +57,9 @@ function TodoList() {
         type: 'text',
         value: inputValue,
         onInput: (e) => setInputValue(e.target.value),
-        placeholder: 'Nova tarefa...',
+        placeholder: 'New task...',
       }),
-      createElement('button', { onClick: addTodo }, 'Adicionar')
+      createElement('button', { onClick: addTodo }, 'Add')
     ),
     createElement(
       'ul',
@@ -106,13 +106,13 @@ function Timer() {
   return createElement(
     'div',
     { className: 'demo-card' },
-    createElement('h2', null, '⏱️ Timer com useEffect'),
+    createElement('h2', null, '⏱️ Timer with useEffect'),
     createElement('div', { className: 'timer-display' }, formatTime(seconds)),
     createElement(
       'div',
       { className: 'button-group' },
-      createElement('button', { onClick: toggle }, isRunning ? 'Pausar' : 'Iniciar'),
-      createElement('button', { onClick: reset }, 'Resetar')
+      createElement('button', { onClick: toggle }, isRunning ? 'Pause' : 'Start'),
+      createElement('button', { onClick: reset }, 'Reset')
     )
   );
 }
@@ -142,12 +142,12 @@ function DynamicList() {
   return createElement(
     'div',
     { className: 'demo-card' },
-    createElement('h2', null, '🔀 Lista Dinâmica com Keys'),
+    createElement('h2', null, '🔀 Dynamic List with Keys'),
     createElement(
       'div',
       { className: 'button-group' },
-      createElement('button', { onClick: shuffle }, 'Embaralhar'),
-      createElement('button', { onClick: addItem }, 'Adicionar Item')
+      createElement('button', { onClick: shuffle }, 'Shuffle'),
+      createElement('button', { onClick: addItem }, 'Add Item')
     ),
     createElement(
       'ul',
@@ -160,7 +160,7 @@ function DynamicList() {
           ' (ID: ',
           item.id,
           ')',
-          createElement('button', { onClick: () => removeItem(item.id) }, 'Remover')
+          createElement('button', { onClick: () => removeItem(item.id) }, 'Remove')
         )
       )
     )
@@ -201,7 +201,7 @@ function ProgressBar() {
   return createElement(
     'div',
     { className: 'demo-card' },
-    createElement('h2', null, '📊 Barra de Progresso'),
+    createElement('h2', null, '📊 Progress Bar'),
     createElement(
       'div',
       { className: 'progress-container' },
@@ -215,13 +215,13 @@ function ProgressBar() {
     createElement(
       'div',
       { className: 'button-group' },
-      createElement('button', { onClick: start, disabled: isRunning && progress < 100 }, 'Iniciar'),
+      createElement('button', { onClick: start, disabled: isRunning && progress < 100 }, 'Start'),
       createElement(
         'button',
         { onClick: pause, disabled: !isRunning || progress >= 100 },
-        isRunning ? 'Pausar' : 'Continuar'
+        isRunning ? 'Pause' : 'Continue'
       ),
-      createElement('button', { onClick: reset }, 'Resetar')
+      createElement('button', { onClick: reset }, 'Reset')
     )
   );
 }
@@ -244,20 +244,20 @@ function ControlledForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // eslint-disable-next-line no-alert
-    window.alert(`Formulário enviado:\n${JSON.stringify(formData, null, 2)}`);
+    window.alert(`Form submitted:\n${JSON.stringify(formData, null, 2)}`);
   };
 
   return createElement(
     'div',
     { className: 'demo-card' },
-    createElement('h2', null, '📋 Formulário Controlado'),
+    createElement('h2', null, '📋 Controlled Form'),
     createElement(
       'form',
       { onSubmit: handleSubmit },
       createElement(
         'div',
         { className: 'form-group' },
-        createElement('label', null, 'Nome:'),
+        createElement('label', null, 'Name:'),
         createElement('input', {
           type: 'text',
           value: formData.name,
@@ -279,7 +279,7 @@ function ControlledForm() {
       createElement(
         'div',
         { className: 'form-group' },
-        createElement('label', null, 'Mensagem:'),
+        createElement('label', null, 'Message:'),
         createElement('textarea', {
           value: formData.message,
           onInput: handleChange('message'),
@@ -287,7 +287,7 @@ function ControlledForm() {
           required: true,
         })
       ),
-      createElement('button', { type: 'submit' }, 'Enviar')
+      createElement('button', { type: 'submit' }, 'Submit')
     )
   );
 }
@@ -327,14 +327,14 @@ function NotificationSystem() {
 
   const addNotification = (type) => {
     const messages = {
-      success: 'Operação realizada com sucesso!',
-      warning: 'Atenção: Verifique os dados.',
-      error: 'Erro: Algo deu errado!',
-      info: 'Informação: Novo recurso disponível.',
+      success: 'Operation completed successfully!',
+      warning: 'Warning: Check the data.',
+      error: 'Error: Something went wrong!',
+      info: 'Info: New feature available.',
     };
     dispatch({ type: 'ADD', message: messages[type], notificationType: type });
 
-    // Auto-remove após 3 segundos
+    // Auto-remove after 3 seconds
     setTimeout(() => {
       dispatch({ type: 'REMOVE', id: state.nextId });
     }, 3000);
@@ -343,24 +343,24 @@ function NotificationSystem() {
   return createElement(
     'div',
     { className: 'demo-card' },
-    createElement('h2', null, '🔔 Sistema de Notificações'),
+    createElement('h2', null, '🔔 Notification System'),
     createElement(
       'div',
       { className: 'button-group' },
       createElement(
         'button',
         { onClick: () => addNotification('success'), className: 'btn-success' },
-        'Sucesso'
+        'Success'
       ),
       createElement(
         'button',
         { onClick: () => addNotification('warning'), className: 'btn-warning' },
-        'Aviso'
+        'Warning'
       ),
       createElement(
         'button',
         { onClick: () => addNotification('error'), className: 'btn-error' },
-        'Erro'
+        'Error'
       ),
       createElement(
         'button',
@@ -391,9 +391,9 @@ function NotificationSystem() {
 function ExpensiveCalculation() {
   const [number, setNumber] = useState(0);
 
-  // Memoriza o cálculo caro
+  // Memoizes the expensive calculation
   const expensiveValue = useMemo(() => {
-    console.log('Calculando valor caro...');
+    console.log('Calculating expensive value...');
     let result = 0;
     for (let i = 0; i <= number * 1000000; i++) {
       result += i;
@@ -401,7 +401,7 @@ function ExpensiveCalculation() {
     return result;
   }, [number]);
 
-  // Memoriza o callback
+  // Memoizes the callback
   const getItems = useCallback(() => [number, number + 1, number + 2], [number]);
 
   return createElement(
@@ -419,7 +419,7 @@ function ExpensiveCalculation() {
         max: '100',
       })
     ),
-    createElement('p', null, 'Valor calculado: ', expensiveValue),
+    createElement('p', null, 'Calculated value: ', expensiveValue),
     createElement('p', null, 'Items: ', getItems().join(', '))
   );
 }
@@ -443,8 +443,8 @@ class ClassCounter extends Component {
     return createElement(
       'div',
       { className: 'demo-card' },
-      createElement('h2', null, '🎯 Componente de Classe'),
-      createElement('p', null, 'Contador: ', this.state.count),
+      createElement('h2', null, '🎯 Class Component'),
+      createElement('p', null, 'Counter: ', this.state.count),
       createElement(
         'div',
         { className: 'button-group' },
@@ -463,8 +463,8 @@ function App() {
     createElement(
       'header',
       null,
-      createElement('h1', null, '🚀 MiniReact - Demonstrações'),
-      createElement('p', null, 'Exemplos práticos usando createElement API diretamente')
+      createElement('h1', null, '🚀 MiniReact - Demos'),
+      createElement('p', null, 'Practical examples using the createElement API directly')
     ),
     createElement(
       'main',
@@ -482,8 +482,8 @@ function App() {
     createElement(
       'footer',
       null,
-      createElement('p', null, 'MiniReact v2.0 - Framework educacional inspirado no React'),
-      createElement('p', null, 'Usando createElement API diretamente (sem JSX)')
+      createElement('p', null, 'MiniReact v2.0 - Educational framework inspired by React'),
+      createElement('p', null, 'Using the createElement API directly (without JSX)')
     )
   );
 }

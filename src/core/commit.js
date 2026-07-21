@@ -1,49 +1,49 @@
 /**
- * @fileoverview Fase de commit - aplicação de mudanças no DOM real
+ * @fileoverview Commit phase - applying changes to the real DOM
  * @module core/commit
  * @description
- * Gerencia a fase de commit do processo de renderização do MiniReact.
+ * Manages the commit phase of MiniReact's rendering process.
  *
- * A fase de commit é executada após a fase de reconciliação e é responsável
- * por aplicar todas as mudanças acumuladas ao DOM real de forma síncrona.
+ * The commit phase runs after the reconciliation phase and is responsible
+ * for applying all accumulated changes to the real DOM synchronously.
  *
- * **Características da Fase de Commit:**
- * - **Síncrona**: Não pode ser interrompida, executa completamente
- * - **Ordem garantida**: Processa mudanças na ordem correta da árvore
- * - **Batch updates**: Aplica todas as mudanças de uma vez
- * - **Side effects**: Executa efeitos após mudanças no DOM
+ * **Characteristics of the Commit Phase:**
+ * - **Synchronous**: Cannot be interrupted, runs to completion
+ * - **Guaranteed order**: Processes changes in the correct tree order
+ * - **Batch updates**: Applies all changes at once
+ * - **Side effects**: Runs effects after DOM changes
  *
- * **Ordem de Execução:**
- * 1. Processa deleções (remove elementos)
- * 2. Aplica inserções e atualizações
- * 3. Executa efeitos (useEffect)
- * 4. Armazena funções de cleanup
+ * **Execution Order:**
+ * 1. Processes deletions (removes elements)
+ * 2. Applies insertions and updates
+ * 3. Runs effects (useEffect)
+ * 4. Stores cleanup functions
  *
  * @example
- * // A fase de commit é executada automaticamente após reconciliação
- * // Quando commitRoot é chamado:
- * // 1. Remove: <div id="old" />
- * // 2. Insere: <span id="new">Hello</span>
- * // 3. Atualiza: <p className="updated">World</p>
- * // 4. Executa: useEffect callbacks
+ * // The commit phase runs automatically after reconciliation
+ * // When commitRoot is called:
+ * // 1. Removes: <div id="old" />
+ * // 2. Inserts: <span id="new">Hello</span>
+ * // 3. Updates: <p className="updated">World</p>
+ * // 4. Runs: useEffect callbacks
  */
 
 import { EFFECT_TAGS } from './constants.js';
-import { updateDom } from '../vdom/updateDom.js';
+import { updateDom, setRef } from '../vdom/updateDom.js';
 
 /**
- * Executa a fase de commit
+ * Runs the commit phase
  *
  * @description
- * Aplica todas as mudanças acumuladas durante a fase de renderização
- * ao DOM real. Esta fase não pode ser interrompida e executa de forma
- * síncrona para garantir consistência visual.
+ * Applies all changes accumulated during the render phase
+ * to the real DOM. This phase cannot be interrupted and runs
+ * synchronously to guarantee visual consistency.
  *
- * @param {Object} wipRoot - Raiz da árvore fiber work-in-progress
- * @param {Array} deletions - Lista de fibers a serem deletados
+ * @param {Object} wipRoot - Root of the work-in-progress fiber tree
+ * @param {Array} deletions - List of fibers to be deleted
  */
 export function commitRoot(wipRoot, deletions) {
-  // Processa deleções primeiro
+  // Process deletions first
   if (deletions) {
     deletions.forEach(deletion => {
       // Find parent DOM node for deletion
@@ -56,26 +56,26 @@ export function commitRoot(wipRoot, deletions) {
     });
   }
 
-  // Processa mudanças na árvore
+  // Process changes in the tree
   commitWork(wipRoot.child);
-  
+
   // NOTE: Effects are now run by the workLoop after currentRoot is set
   // to ensure proper timing and avoid duplicate execution
-  
-  // Retorna a raiz para ser usada como currentRoot
+
+  // Return the root to be used as currentRoot
   return wipRoot;
 }
 
 /**
- * Aplica mudanças de um fiber ao DOM
+ * Applies a fiber's changes to the DOM
  *
  * @description
- * Processa um fiber e seus descendentes, aplicando as mudanças
- * necessárias ao DOM baseado na effectTag de cada fiber.
+ * Processes a fiber and its descendants, applying the necessary
+ * changes to the DOM based on each fiber's effectTag.
  *
- * @param {Object} fiber - Fiber a ser processado
- * @param {string} fiber.effectTag - Tipo de operação (PLACEMENT, UPDATE, DELETION)
- * @param {HTMLElement} fiber.dom - Elemento DOM associado
+ * @param {Object} fiber - Fiber to be processed
+ * @param {string} fiber.effectTag - Operation type (PLACEMENT, UPDATE, DELETION)
+ * @param {HTMLElement} fiber.dom - Associated DOM element
  */
 function commitWork(fiber) {
   if (!fiber) {
@@ -83,7 +83,7 @@ function commitWork(fiber) {
   }
 
 
-  // For deletions, find parent from fiber's own parent/return property
+  // For deletions, find the parent from the fiber's own parent/return property
   if (fiber.effectTag === EFFECT_TAGS.DELETION) {
     // Find parent DOM node for deletion
     let domParentFiber = fiber.parent || fiber.return;
@@ -95,91 +95,104 @@ function commitWork(fiber) {
     return; // Skip processing children/siblings for deleted elements
   }
 
-  // For non-deletions, find parent normally
+  // For non-deletions, find the parent normally
   let domParentFiber = fiber.parent;
   while (domParentFiber && !domParentFiber.dom) {
     domParentFiber = domParentFiber.parent;
   }
   const domParent = domParentFiber?.dom;
 
-  // Aplica mudança baseada no tipo de efeito
-  if (fiber.effectTag === EFFECT_TAGS.PLACEMENT && fiber.dom != null) {
-    // INSERÇÃO: adiciona novo elemento ao DOM
-    domParent.appendChild(fiber.dom);
-  } else if (fiber.effectTag === EFFECT_TAGS.UPDATE && fiber.dom != null) {
-    // ATUALIZAÇÃO: atualiza propriedades do elemento existente
+  // UPDATE: patch properties of the existing element
+  if (fiber.effectTag === EFFECT_TAGS.UPDATE && fiber.dom != null) {
     updateDom(fiber.dom, fiber.alternate.props, fiber.props);
   }
 
-  // Processa filhos e irmãos recursivamente (only if not deleted)
+  // Keep DOM order in sync with fiber order. This walk visits fibers in the
+  // same order reconciliation placed them in the new tree, and appendChild on
+  // a node already in the document moves it - so re-appending every placed or
+  // updated node as we go settles each parent's children into their correct
+  // final order. This is what makes key-based list reordering actually move
+  // nodes, rather than just patching each position's content in place.
+  if (fiber.dom != null && domParent) {
+    domParent.appendChild(fiber.dom);
+  }
+
+  // Process children and siblings recursively (only if not deleted)
   commitWork(fiber.child);
   commitWork(fiber.sibling);
 }
 
 /**
- * Remove um fiber e seus descendentes do DOM
+ * Removes a fiber and its own descendants from the DOM
  *
  * @description
- * Remove elementos do DOM, tratando especialmente componentes funcionais
- * que não possuem DOM node próprio, descendo até encontrar um elemento
- * com DOM para remover.
+ * Removes elements from the DOM, giving special treatment to function
+ * components that don't have their own DOM node, descending until
+ * finding elements with a DOM node to remove.
  *
- * @param {Object} fiber - Fiber a ser removido
- * @param {HTMLElement} domParent - Elemento pai no DOM
+ * Every fiber that needs to be removed is already listed individually in
+ * `deletions` by the reconciler, so this only ever recurses into a deleted
+ * fiber's own children (never into its sibling) - a fiber's sibling is a
+ * separate, independently-tracked node that may have been reused elsewhere
+ * in the new tree, not something implied by this deletion.
+ *
+ * @param {Object} fiber - Fiber to be removed
+ * @param {HTMLElement} domParent - Parent element in the DOM
  */
 function commitDeletion(fiber, domParent) {
   if (!fiber) {
     return;
   }
-  
+
   if (fiber.dom) {
-    // Elemento com DOM: remove diretamente
+    // Element with its own DOM node: remove it directly
     if (domParent && domParent.contains(fiber.dom)) {
-      // Executa cleanup de efeitos antes de remover
+      // Run effect cleanup and clear the ref before removing
       cleanupEffects(fiber);
+      setRef(fiber.props?.ref, null);
       domParent.removeChild(fiber.dom);
     }
-    // When we have a DOM element, we still need to process siblings if this is a child deletion
-    // but not the children since they are part of the DOM node being removed
-    commitDeletion(fiber.sibling, domParent);
     return;
-  } else {
-    // Componente funcional: executa cleanup e desce até encontrar elementos com DOM
-    cleanupEffects(fiber);
-    // Process all children to remove their DOM nodes
-    commitDeletion(fiber.child, domParent);
-    // Also process siblings to handle multiple children deletion
-    commitDeletion(fiber.sibling, domParent);
+  }
+
+  // Function/class component: no DOM of its own - clean up its effects and
+  // descend into each of its own children (a component can render more than
+  // one top-level child, linked via the sibling chain) to remove theirs
+  cleanupEffects(fiber);
+  let { child } = fiber;
+  while (child) {
+    commitDeletion(child, domParent);
+    child = child.sibling;
   }
 }
 
 /**
- * Executa efeitos após mudanças no DOM
+ * Runs effects after DOM changes
  *
  * @description
- * Percorre a árvore fiber executando efeitos (useEffect) que foram
- * marcados para execução. Limpa efeitos anteriores se necessário
- * e executa novos efeitos.
+ * Walks the fiber tree running effects (useEffect) that have been
+ * marked for execution. Cleans up previous effects if needed
+ * and runs new effects.
  *
- * @param {Object} fiber - Fiber raiz para executar efeitos
+ * @param {Object} fiber - Root fiber to run effects on
  */
 export function runEffects(fiber) {
   if (!fiber) return;
 
-  // Executa efeitos do fiber atual
+  // Run effects for the current fiber
   if (fiber.hooks) {
-    // Primeiro: executa todos os cleanups dos hooks antigos
+    // First: run all cleanups for the old hooks
     fiber.hooks.forEach((hook, index) => {
       if (hook.tag === 'effect') {
         const oldHook = fiber.alternate && fiber.alternate.hooks && fiber.alternate.hooks[index];
-        
+
         // Check if we should run cleanup - if deps changed and old hook has cleanup
         const shouldRunCleanup = oldHook && oldHook.cleanup && (
           !hook.deps || // No deps means always run
           !oldHook.deps || // Old hook had no deps
           depsChanged(oldHook.deps, hook.deps) // Deps changed
         );
-        
+
         if (shouldRunCleanup) {
           try {
             oldHook.cleanup();
@@ -189,8 +202,8 @@ export function runEffects(fiber) {
         }
       }
     });
-    
-    // Segundo: executa todos os novos efeitos
+
+    // Second: run all new effects
     fiber.hooks.forEach((hook, index) => {
       if (hook.tag === 'effect') {
         // Check if we should run effect - if deps changed or no deps or first time
@@ -198,11 +211,11 @@ export function runEffects(fiber) {
         const shouldRunEffect = !hook.deps || // No deps means always run
           !oldHook || // First time
           depsChanged(oldHook.deps, hook.deps);
-          
+
         if (shouldRunEffect && hook.effect) {
           try {
             const cleanup = hook.effect();
-            // Atualiza o cleanup no hook
+            // Update the hook's cleanup
             if (typeof cleanup === 'function') {
               hook.cleanup = cleanup;
             } else {
@@ -216,13 +229,13 @@ export function runEffects(fiber) {
     });
   }
 
-  // Executa efeitos dos descendentes
+  // Run effects for the descendants
   runEffects(fiber.child);
   runEffects(fiber.sibling);
 }
 
 /**
- * Verifica se as dependências de um efeito mudaram
+ * Checks whether an effect's dependencies changed
  */
 function depsChanged(prevDeps, nextDeps) {
   if (!prevDeps || !nextDeps) return true;
@@ -231,19 +244,19 @@ function depsChanged(prevDeps, nextDeps) {
 }
 
 /**
- * Limpa efeitos de um fiber sendo removido
+ * Cleans up effects for a fiber being removed
  *
  * @description
- * Executa funções de cleanup para todos os efeitos de um fiber
- * antes dele ser removido do DOM. Importante para prevenir
- * vazamentos de memória.
+ * Runs cleanup functions for all effects of a fiber
+ * before it is removed from the DOM. Important to prevent
+ * memory leaks.
  *
- * @param {Object} fiber - Fiber sendo removido
+ * @param {Object} fiber - Fiber being removed
  */
 function cleanupEffects(fiber) {
   if (!fiber) return;
 
-  // Limpa efeitos do fiber atual
+  // Clean up effects for the current fiber
   if (fiber.hooks) {
     fiber.hooks.forEach((hook, index) => {
       if (hook.tag === 'effect' && hook.cleanup && typeof hook.cleanup === 'function') {
@@ -257,31 +270,31 @@ function cleanupEffects(fiber) {
     });
   }
 
-  // Limpa efeitos dos descendentes
+  // Clean up effects for the descendants
   cleanupEffects(fiber.child);
   cleanupEffects(fiber.sibling);
 }
 
 /**
- * Informações sobre a fase de Commit
+ * Information about the Commit phase
  *
  * @description
- * A fase de commit é a segunda fase do processo de renderização,
- * executada após a fase de render/reconciliação. Características:
+ * The commit phase is the second phase of the rendering process,
+ * executed after the render/reconciliation phase. Characteristics:
  *
- * 1. **Síncrona**: Não pode ser interrompida, executa completamente
- * 2. **Mutações DOM**: Todas as mudanças são aplicadas de uma vez
- * 3. **Ordem garantida**: Processa na ordem correta da árvore
- * 4. **Efeitos**: Executa após mudanças no DOM estarem completas
+ * 1. **Synchronous**: Cannot be interrupted, runs to completion
+ * 2. **DOM mutations**: All changes are applied at once
+ * 3. **Guaranteed order**: Processes in the correct tree order
+ * 4. **Effects**: Runs after DOM changes are complete
  *
- * Ordem de execução:
- * 1. Processa deleções
- * 2. Aplica inserções e atualizações
- * 3. Executa efeitos (useEffect)
- * 4. Armazena funções de cleanup
+ * Execution order:
+ * 1. Processes deletions
+ * 2. Applies insertions and updates
+ * 3. Runs effects (useEffect)
+ * 4. Stores cleanup functions
  *
- * Esta separação em duas fases (render e commit) permite:
- * - Renderização incremental na fase de render
- * - Garantia de consistência visual na fase de commit
- * - Melhor performance e responsividade
+ * This separation into two phases (render and commit) enables:
+ * - Incremental rendering during the render phase
+ * - Guaranteed visual consistency during the commit phase
+ * - Better performance and responsiveness
  */

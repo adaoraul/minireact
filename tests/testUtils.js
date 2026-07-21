@@ -21,9 +21,13 @@ export function cleanupContainer(container) {
   }
   
   // Reset fiber state by importing and calling reset functions
+  // (mirrors the window.minireact reset above, since hooks fall back to this
+  // internal state directly whenever window.minireact isn't the active source)
   try {
-    const { resetRootContainer } = require('../src/core/fiber.js');
+    const { resetRootContainer, setWipFiber, setHookIndex } = require('../src/core/fiber.js');
     resetRootContainer();
+    setWipFiber(null);
+    setHookIndex(null);
   } catch (e) {
     // Reset function may not exist or fail, continue
   }

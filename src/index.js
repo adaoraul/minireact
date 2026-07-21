@@ -1,18 +1,18 @@
 /**
- * @fileoverview Ponto de entrada principal do MiniReact
+ * @fileoverview Main entry point for MiniReact
  * @module MiniReact
  * @description
- * MiniReact é um framework inspirado no React para fins educacionais.
+ * MiniReact is a React-inspired framework for educational purposes.
  *
- * Características principais:
- * - Virtual DOM para atualizações eficientes
- * - Arquitetura Fiber para renderização incremental
- * - Hooks para gerenciamento de estado e efeitos
- * - Componentes funcionais e de classe
- * - Reconciliação inteligente com suporte a keys
+ * Main features:
+ * - Virtual DOM for efficient updates
+ * - Fiber architecture for incremental rendering
+ * - Hooks for state and effect management
+ * - Functional and class components
+ * - Smart reconciliation with support for keys
  *
  * @example
- * // Importação de módulos individuais
+ * // Importing individual modules
  * import { createElement, render, useState } from './src/index.js';
  *
  * function Counter() {
@@ -27,11 +27,11 @@
  * render(createElement(Counter), document.getElementById('root'));
  *
  * @example
- * // Importação do namespace completo
+ * // Importing the full namespace
  * import MiniReact from './src/index.js';
  *
  * const { createElement, render, useState } = MiniReact;
- * // ... resto do código
+ * // ... rest of the code
  */
 
 // Core
@@ -47,7 +47,7 @@ import { createElement } from './vdom/createElement.js';
 // Component
 import { Component } from './component.js';
 
-// Exportações nomeadas
+// Named exports
 export {
   // Core
   render,
@@ -73,18 +73,18 @@ export {
 /**
  * @namespace MiniReact
  * @description
- * Namespace principal do MiniReact contendo todas as funções e componentes exportados.
+ * Main MiniReact namespace containing all exported functions and components.
  *
- * O MiniReact é uma implementação educacional do React que demonstra os conceitos
- * fundamentais de frameworks modernos de UI:
+ * MiniReact is an educational implementation of React that demonstrates the
+ * core concepts of modern UI frameworks:
  *
- * - **Virtual DOM**: Representação eficiente da árvore de elementos
- * - **Fiber Architecture**: Renderização incremental e interruptível
- * - **Hooks System**: Estado e efeitos em componentes funcionais
- * - **Reconciliation**: Algoritmo de diff otimizado O(n)
- * - **Component Model**: Suporte para componentes funcionais e de classe
+ * - **Virtual DOM**: Efficient representation of the element tree
+ * - **Fiber Architecture**: Incremental and interruptible rendering
+ * - **Hooks System**: State and effects in functional components
+ * - **Reconciliation**: Optimized O(n) diffing algorithm
+ * - **Component Model**: Support for functional and class components
  *
- * @example <caption>Uso básico com componente funcional</caption>
+ * @example <caption>Basic usage with a functional component</caption>
  * import { createElement, render, useState } from './src/index.js';
  *
  * function App() {
@@ -104,7 +104,7 @@ export {
  *
  * render(createElement(App), document.getElementById('root'));
  *
- * @example <caption>Uso com useEffect para efeitos colaterais</caption>
+ * @example <caption>Usage with useEffect for side effects</caption>
  * import { createElement, useState, useEffect } from './src/index.js';
  *
  * function Timer() {
@@ -121,11 +121,11 @@ export {
  *   return createElement('div', null, `Seconds: ${seconds}`);
  * }
  *
- * @see {@link module:core/fiber|Fiber} para entender a arquitetura
- * @see {@link module:hooks/useState|useState} para gerenciamento de estado
- * @see {@link module:vdom/createElement|createElement} para criação de elementos
+ * @see {@link module:core/fiber|Fiber} to understand the architecture
+ * @see {@link module:hooks/useState|useState} for state management
+ * @see {@link module:vdom/createElement|createElement} for element creation
  */
-// Exportação padrão para conveniência
+// Default export for convenience
 const MiniReact = {
   // Core
   render,
@@ -152,17 +152,17 @@ export default MiniReact;
 
 /**
  * @description
- * MiniReact é um framework inspirado no React para fins educacionais.
+ * MiniReact is a React-inspired framework for educational purposes.
  *
- * Características principais:
- * - Virtual DOM para atualizações eficientes
- * - Arquitetura Fiber para renderização incremental
- * - Hooks para gerenciamento de estado e efeitos
- * - Componentes funcionais e de classe
- * - Reconciliação inteligente com suporte a keys
+ * Main features:
+ * - Virtual DOM for efficient updates
+ * - Fiber architecture for incremental rendering
+ * - Hooks for state and effect management
+ * - Functional and class components
+ * - Smart reconciliation with support for keys
  *
  * @example
- * // Importação de módulos individuais
+ * // Importing individual modules
  * import { createElement, render, useState } from 'minireact';
  *
  * function Counter() {
@@ -177,9 +177,9 @@ export default MiniReact;
  * render(createElement(Counter), document.getElementById('root'));
  *
  * @example
- * // Importação do namespace completo
+ * // Importing the full namespace
  * import MiniReact from 'minireact';
  *
  * const { createElement, render, useState } = MiniReact;
- * // ... resto do código
+ * // ... rest of the code
  */

@@ -1,5 +1,5 @@
 /**
- * @fileoverview Exportação centralizada de todos os hooks
+ * @fileoverview Centralized export of all hooks
  * @module hooks
  */
 

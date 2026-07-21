@@ -1,24 +1,24 @@
 /**
- * @fileoverview Implementação do hook useState
+ * @fileoverview Implementation of the useState hook
  * @module hooks/useState
  * @description
- * Implementa o hook useState para gerenciamento de estado local em componentes funcionais.
+ * Implements the useState hook for managing local state in functional components.
  *
- * O useState é o hook mais fundamental do MiniReact, permitindo que componentes
- * funcionais mantenham estado entre renderizações. Ele utiliza a arquitetura Fiber
- * para armazenar o estado e agenda re-renderizações quando o estado muda.
+ * useState is the most fundamental hook in MiniReact, allowing functional
+ * components to keep state between renders. It uses the Fiber architecture
+ * to store state and schedules re-renders whenever the state changes.
  *
- * **Características:**
- * - Estado persistente entre renders
- * - Atualizações síncronas e assíncronas
- * - Suporte a atualizações funcionais
- * - Batching automático de múltiplas atualizações
+ * **Features:**
+ * - State persists between renders
+ * - Synchronous and asynchronous updates
+ * - Support for functional updates
+ * - Automatic batching of multiple updates
  *
- * **Como Funciona:**
- * 1. Armazena estado no fiber do componente
- * 2. Mantém fila de atualizações pendentes
- * 3. Processa atualizações na próxima renderização
- * 4. Agenda re-render quando setState é chamado
+ * **How It Works:**
+ * 1. Stores state on the component's fiber
+ * 2. Keeps a queue of pending updates
+ * 3. Processes updates on the next render
+ * 4. Schedules a re-render when setState is called
  */
 
 import {
@@ -30,121 +30,92 @@ import {
   scheduleRerender,
 } from './hookUtils.js';
 
-// Armazena filas de atualização por fiber + hook index para persistir entre renders
-const updateQueues = new Map();
-// Armazena o estado atual de cada hook para persistir entre renders
-const hookStates = new Map();
-
 /**
- * Limpa todos os estados persistentes dos hooks (usado em testes)
+ * No-op kept for backward compatibility with existing test setup/teardown.
+ * State now lives entirely on the fiber tree (see useState below), so there
+ * is no module-level cache left to clear between tests or renders.
  */
-export function clearHookState() {
-  updateQueues.clear();
-  hookStates.clear();
-}
+// eslint-disable-next-line no-empty-function -- intentional no-op, see comment above
+export function clearHookState() {}
 
 /**
- * Hook para gerenciar estado local em componentes funcionais
+ * Hook for managing local state in functional components
  *
  * @description
- * Permite que componentes funcionais tenham estado local que persiste
- * entre renderizações. Quando o estado é atualizado, o componente é
- * re-renderizado automaticamente.
+ * Allows functional components to have local state that persists
+ * between renders. When the state is updated, the component is
+ * automatically re-rendered.
  *
  * @template T
- * @param {T} initial - Valor inicial do estado
- * @returns {Array} Tupla contendo o valor atual e função para atualizar
+ * @param {T} initial - Initial state value
+ * @returns {Array} Tuple containing the current value and the update function
  *
  * @example
- * function Contador() {
+ * function Counter() {
  *   const [count, setCount] = useState(0);
  *
  *   return createElement(
  *     'button',
  *     { onClick: () => setCount(count + 1) },
- *     `Cliques: ${count}`
+ *     `Clicks: ${count}`
  *   );
  * }
  *
  * @example
- * // Atualização funcional do estado
+ * // Functional state update
  * const [count, setCount] = useState(0);
  * setCount(prevCount => prevCount + 1);
  */
 export function useState(initial) {
-  // Valida se está sendo chamado dentro de um componente
+  // Validates that this is being called within a component
   validateHookCall('useState');
 
-  // Obtém o fiber e índice atuais
+  // Gets the current fiber and index
   const wipFiber = getCurrentFiber();
   const hookIndex = getCurrentHookIndex();
 
-  // Cria chave única para este hook (fiber + index)  
-  const hookKey = `${wipFiber.type?.name || wipFiber.type?.toString() || 'anonymous'}_${hookIndex}`;
-  
-  
-  // Obtém ou cria a fila de atualizações para este hook
-  if (!updateQueues.has(hookKey)) {
-    updateQueues.set(hookKey, []);
-  }
-  const queue = updateQueues.get(hookKey);
+  // Gets this hook's own previous instance from the fiber tree, if any. Reusing
+  // the same hook record (rather than rebuilding one from copied fields) keeps
+  // state, queue and setState tied to this specific component instance - and
+  // keeps setState correct even if a stale reference to it is held across renders.
+  const oldHook = getPreviousHook(wipFiber, hookIndex);
+  const hook = oldHook || {
+    state: typeof initial === 'function' ? initial() : initial,
+    queue: [],
+  };
 
-  // Determina o estado inicial - usa estado persistente ou inicial
-  let currentState;
-  if (hookStates.has(hookKey)) {
-    // Usa estado persistente
-    currentState = hookStates.get(hookKey);
-  } else {
-    // Primeiro uso - usa valor inicial
-    currentState = typeof initial === 'function' ? initial() : initial;
-    hookStates.set(hookKey, currentState);
-  }
-
-  // Processa ações pendentes na fila
-  const actions = [...queue];
-  queue.length = 0; // Limpa a fila
-  
+  // Processes pending actions accumulated since the last render
+  const actions = hook.queue.splice(0);
   actions.forEach((action) => {
-    currentState = typeof action === 'function' ? action(currentState) : action;
+    hook.state = typeof action === 'function' ? action(hook.state) : action;
   });
 
-  // Salva o estado atualizado
-  hookStates.set(hookKey, currentState);
+  // Creates the setState function once; later renders reuse the same instance
+  if (!hook.setState) {
+    /**
+     * Function to update the state
+     * @param {T|function(T):T} action - New value or function that receives the previous value
+     */
+    hook.setState = (action) => {
+      // Optimization: checks if the value is the same to avoid unnecessary re-renders
+      const nextValue = typeof action === 'function' ? action(hook.state) : action;
 
-  /**
-   * Função para atualizar o estado
-   * @param {T|function(T):T} action - Novo valor ou função que recebe o valor anterior
-   */
-  const setState = (action) => {
-    // Otimização: verifica se o valor é o mesmo para evitar re-renders desnecessários
-    const currentState = hookStates.get(hookKey);
-    const nextValue = typeof action === 'function' ? action(currentState) : action;
-    
-    // Se não há mudança, não agenda re-render
-    if (Object.is(nextValue, currentState)) {
-      return;
-    }
+      // If there is no change, does not schedule a re-render
+      if (Object.is(nextValue, hook.state)) {
+        return;
+      }
 
-    // Adiciona ação à fila global
-    const hookQueue = updateQueues.get(hookKey);
-    if (hookQueue) {
-      hookQueue.push(action);
-    }
+      // Queues the action to be applied on the next render
+      hook.queue.push(action);
 
-    // Agenda re-renderização
-    scheduleRerender();
-  };
+      // Schedules a re-render
+      scheduleRerender();
+    };
+  }
 
-  // Cria hook para esta renderização
-  const hook = {
-    state: currentState,
-    setState,
-  };
-
-
-  // Adiciona hook à lista do fiber
+  // Adds the hook to the fiber's list
   wipFiber.hooks.push(hook);
   incrementHookIndex();
 
-  return [hook.state, setState];
+  return [hook.state, hook.setState];
 }

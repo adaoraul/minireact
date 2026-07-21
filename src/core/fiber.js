@@ -1,20 +1,20 @@
 /**
- * @fileoverview Implementação da arquitetura Fiber e work loop
+ * @fileoverview Implementation of the Fiber architecture and work loop
  * @module core/fiber
  * @description
- * Módulo central que implementa a arquitetura Fiber do MiniReact.
+ * Central module implementing MiniReact's Fiber architecture.
  *
- * O Fiber é uma reimplementação do algoritmo de reconciliação que permite:
- * - **Renderização Incremental**: Divide o trabalho em pequenas unidades
- * - **Interruptibilidade**: Pode pausar e retomar o trabalho
- * - **Priorização**: Permite que trabalhos urgentes interrompam outros
- * - **Concorrência**: Prepara o terreno para features concorrentes
+ * Fiber is a reimplementation of the reconciliation algorithm that enables:
+ * - **Incremental Rendering**: Splits work into small units
+ * - **Interruptibility**: Can pause and resume work
+ * - **Prioritization**: Allows urgent work to interrupt other work
+ * - **Concurrency**: Lays the groundwork for concurrent features
  *
- * Cada fiber é uma unidade de trabalho que representa um componente na árvore.
- * O work loop processa essas unidades incrementalmente usando `requestIdleCallback`.
+ * Each fiber is a unit of work representing a component in the tree.
+ * The work loop processes these units incrementally using `requestIdleCallback`.
  *
  * @example
- * // Renderizando uma aplicação
+ * // Rendering an application
  * import { render } from './core/fiber.js';
  * import { createElement } from './vdom/createElement.js';
  *
@@ -25,7 +25,7 @@
 import { updateFunctionComponent, updateHostComponent } from './reconciler.js';
 import { commitRoot, runEffects } from './commit.js';
 
-// Estado global do fiber
+// Global fiber state
 let nextUnitOfWork = null;
 let currentRoot = null;
 let wipRoot = null;
@@ -34,7 +34,7 @@ let hookIndex = null;
 let rootContainer = null;
 let isWorkLoopRunning = false;
 
-// Estado global para deleções (usa window no browser)
+// Global state for deletions (uses window in the browser)
 let globalDeletions = [];
 if (typeof window !== 'undefined') {
   window.minireact = window.minireact || {};
@@ -43,55 +43,55 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * Obtém o fiber atualmente sendo processado
- * @returns {Object} Fiber atual (work in progress)
+ * Gets the fiber currently being processed
+ * @returns {Object} Current (work in progress) fiber
  */
 export function getWipFiber() {
   return wipFiber;
 }
 
 /**
- * Define o fiber atualmente sendo processado
- * @param {Object} fiber - Fiber a ser definido como atual
+ * Sets the fiber currently being processed
+ * @param {Object} fiber - Fiber to set as current
  */
 export function setWipFiber(fiber) {
   wipFiber = fiber;
 }
 
 /**
- * Obtém o índice do hook atual
- * @returns {number} Índice do hook
+ * Gets the current hook index
+ * @returns {number} Hook index
  */
 export function getHookIndex() {
   return hookIndex;
 }
 
 /**
- * Incrementa o índice do hook
+ * Increments the hook index
  */
 export function incrementHookIndex() {
   hookIndex++;
 }
 
 /**
- * Define o índice do hook (usado em testes)
- * @param {number} index - Novo índice
+ * Sets the hook index (used in tests)
+ * @param {number} index - New index
  */
 export function setHookIndex(index) {
   hookIndex = index;
 }
 
 /**
- * Obtém a raiz atual da árvore fiber
- * @returns {Object} Raiz atual
+ * Gets the current root of the fiber tree
+ * @returns {Object} Current root
  */
 export function getCurrentRoot() {
   return currentRoot;
 }
 
 /**
- * Adiciona um fiber à lista de deleções
- * @param {Object} fiber - Fiber a ser deletado
+ * Adds a fiber to the deletions list
+ * @param {Object} fiber - Fiber to be deleted
  */
 export function addDeletion(fiber) {
   if (typeof window !== 'undefined') {
@@ -103,64 +103,64 @@ export function addDeletion(fiber) {
 }
 
 /**
- * Define a raiz atual da árvore fiber
- * @param {Object} root - Nova raiz
+ * Sets the current root of the fiber tree
+ * @param {Object} root - New root
  */
 export function setCurrentRoot(root) {
   currentRoot = root;
 }
 
 /**
- * Reseta o container raiz (usado em testes)
+ * Resets the root container (used in tests)
  */
 export function resetRootContainer() {
   rootContainer = null;
 }
 
 /**
- * Loop de trabalho principal (Work Loop)
+ * Main work loop
  *
  * @description
- * Implementa renderização incremental usando requestIdleCallback.
- * Processa unidades de trabalho (fibers) enquanto há tempo disponível,
- * permitindo que o navegador mantenha responsividade.
+ * Implements incremental rendering using requestIdleCallback.
+ * Processes units of work (fibers) while there is time available,
+ * allowing the browser to stay responsive.
  *
- * @param {IdleDeadline} deadline - Objeto fornecido por requestIdleCallback
+ * @param {IdleDeadline} deadline - Object provided by requestIdleCallback
  */
 function workLoop(deadline) {
   let shouldYield = false;
 
-  // Processa trabalho enquanto há tempo disponível
+  // Process work while there is time available
   while (nextUnitOfWork && !shouldYield) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
     shouldYield = deadline.timeRemaining() < 1;
   }
 
-  // Se completou a fase de renderização, inicia fase de commit
+  // If the render phase has completed, start the commit phase
   if (!nextUnitOfWork && wipRoot) {
     const deletions = typeof window !== 'undefined' ? window.minireact.deletions || [] : globalDeletions;
     const completedRoot = wipRoot;
-    
-    // Commits mudanças no DOM
+
+    // Commit changes to the DOM
     commitRoot(wipRoot, deletions);
-    
-    // Atualiza referência da raiz atual ANTES de executar efeitos
+
+    // Update the current root reference BEFORE running effects
     currentRoot = completedRoot;
-    
-    // Limpa estado de renderização ANTES de executar efeitos
-    // para que efeitos que chamam setState possam agendar novo trabalho
+
+    // Clear render state BEFORE running effects
+    // so that effects calling setState can schedule new work
     wipRoot = null;
     globalDeletions = [];
     if (typeof window !== 'undefined') {
       window.minireact.deletions = null;
     }
-    
-    // Executa efeitos após DOM estar atualizado e currentRoot definido
-    // Os efeitos podem chamar setState e criar um novo wipRoot
+
+    // Run effects after the DOM has been updated and currentRoot is set
+    // Effects may call setState and create a new wipRoot
     runEffects(currentRoot);
   }
 
-  // Continua o loop se ainda há trabalho (inclui trabalho agendado por efeitos)
+  // Continue the loop if there is still work (includes work scheduled by effects)
   if (nextUnitOfWork || wipRoot) {
     requestIdleCallback(workLoop);
   } else {
@@ -169,11 +169,11 @@ function workLoop(deadline) {
 }
 
 /**
- * Inicia o work loop se não estiver rodando
+ * Starts the work loop if it isn't already running
  *
  * @description
- * Garante que apenas um work loop está ativo por vez,
- * evitando múltiplas renderizações concorrentes.
+ * Ensures only one work loop is active at a time,
+ * preventing multiple concurrent renders.
  */
 function startWorkLoop() {
   if (!isWorkLoopRunning) {
@@ -183,18 +183,18 @@ function startWorkLoop() {
 }
 
 /**
- * Processa uma unidade de trabalho (fiber)
+ * Processes a unit of work (fiber)
  *
  * @description
- * Executa o trabalho para um fiber específico e retorna
- * o próximo fiber a ser processado seguindo a ordem:
- * filho -> irmão -> pai
+ * Performs the work for a specific fiber and returns
+ * the next fiber to process, following the order:
+ * child -> sibling -> parent
  *
- * @param {Object} fiber - Fiber a ser processado
- * @returns {Object|null} Próximo fiber a processar ou null
+ * @param {Object} fiber - Fiber to be processed
+ * @returns {Object|null} Next fiber to process, or null
  */
 function performUnitOfWork(fiber) {
-  // Define fiber atual globalmente para hooks
+  // Set the current fiber globally for hooks
   wipFiber = fiber;
   hookIndex = 0;
   if (typeof window !== 'undefined') {
@@ -202,7 +202,7 @@ function performUnitOfWork(fiber) {
     window.minireact.hookIndex = 0;
   }
 
-  // Processa fiber baseado no tipo
+  // Process fiber based on its type
   const isFunctionComponent = fiber.type instanceof Function;
 
   if (isFunctionComponent) {
@@ -211,8 +211,8 @@ function performUnitOfWork(fiber) {
     updateHostComponent(fiber);
   }
 
-  // Retorna próxima unidade de trabalho
-  // Ordem: filho -> irmão -> pai (subindo na árvore)
+  // Return the next unit of work
+  // Order: child -> sibling -> parent (moving back up the tree)
   if (fiber.child) {
     return fiber.child;
   }
@@ -229,14 +229,14 @@ function performUnitOfWork(fiber) {
 }
 
 /**
- * Renderiza elemento no container
+ * Renders an element into the container
  *
  * @description
- * Ponto de entrada principal para renderização. Cria a raiz fiber
- * e inicia o processo de reconciliação e renderização.
+ * Main entry point for rendering. Creates the fiber root
+ * and starts the reconciliation and rendering process.
  *
- * @param {Object} element - Elemento Virtual DOM a renderizar
- * @param {HTMLElement} container - Container DOM onde renderizar
+ * @param {Object} element - Virtual DOM element to render
+ * @param {HTMLElement} container - DOM container to render into
  *
  * @example
  * const element = createElement('div', null, 'Hello World');
@@ -252,13 +252,13 @@ export function render(element, container) {
     wipFiber = null;
     hookIndex = null;
     isWorkLoopRunning = false;
-    
+
     // Clear container and set as new root
     container.innerHTML = '';
     rootContainer = container;
   }
 
-  // Cria raiz fiber (work in progress root)
+  // Create the fiber root (work in progress root)
   wipRoot = {
     dom: container,
     props: {
@@ -267,83 +267,83 @@ export function render(element, container) {
     alternate: currentRoot,
   };
 
-  // Inicializa estado de deleções
+  // Initialize deletions state
   globalDeletions = [];
   if (typeof window !== 'undefined') {
     window.minireact.deletions = [];
   }
   nextUnitOfWork = wipRoot;
 
-  // Inicia work loop
+  // Start the work loop
   startWorkLoop();
 }
 
 /**
- * Agenda re-renderização do componente atual
+ * Schedules a re-render of the current component
  *
  * @description
- * Usado internamente pelos hooks para agendar uma nova renderização
- * quando o estado muda. Cria uma nova árvore fiber mantendo o DOM atual.
+ * Used internally by hooks to schedule a new render
+ * when state changes. Creates a new fiber tree while keeping the current DOM.
  */
 export function scheduleRerender() {
-  // Verifica se há uma raiz atual para re-renderizar
+  // Check whether there is a current root to re-render
   if (!currentRoot) {
     console.warn('scheduleRerender: No current root to re-render');
     return;
   }
 
-  // Cria nova raiz mantendo props e DOM atuais
+  // Create a new root keeping the current props and DOM
   wipRoot = {
     dom: currentRoot.dom,
     props: currentRoot.props,
     alternate: currentRoot,
   };
 
-  // Reinicializa estado
+  // Reinitialize state
   nextUnitOfWork = wipRoot;
   if (typeof window !== 'undefined') {
     window.minireact.deletions = [];
   }
 
-  // Inicia work loop
+  // Start the work loop
   startWorkLoop();
 }
 
-// Expõe scheduleRerender globalmente para hooks
+// Expose scheduleRerender globally for hooks
 if (typeof window !== 'undefined') {
   window.minireact.scheduleRerender = scheduleRerender;
 }
 
 /**
- * Informações sobre a arquitetura Fiber
+ * Information about the Fiber architecture
  *
  * @description
- * Fiber é uma unidade de trabalho que representa um componente ou elemento.
- * Cada fiber contém:
- * - type: tipo do elemento ou função do componente
- * - props: propriedades incluindo children
- * - dom: referência ao nó DOM real
- * - parent: referência ao fiber pai
- * - child: referência ao primeiro filho
- * - sibling: referência ao próximo irmão
- * - alternate: referência ao fiber da renderização anterior
- * - effectTag: tipo de mudança (PLACEMENT, UPDATE, DELETION)
- * - hooks: array de hooks para componentes funcionais
+ * A fiber is a unit of work representing a component or element.
+ * Each fiber contains:
+ * - type: the element type or component function
+ * - props: properties including children
+ * - dom: reference to the actual DOM node
+ * - parent: reference to the parent fiber
+ * - child: reference to the first child
+ * - sibling: reference to the next sibling
+ * - alternate: reference to the fiber from the previous render
+ * - effectTag: type of change (PLACEMENT, UPDATE, DELETION)
+ * - hooks: array of hooks for function components
  *
- * A arquitetura Fiber permite:
- * - Renderização incremental (pausável e resumível)
- * - Priorização de trabalho
- * - Melhor tratamento de erros
- * - Suporte para concurrent features
+ * The Fiber architecture enables:
+ * - Incremental rendering (pausable and resumable)
+ * - Work prioritization
+ * - Better error handling
+ * - Support for concurrent features
  *
  * @typedef {Object} Fiber
- * @property {Function|string} type - Tipo do componente ou tag HTML
- * @property {Object} props - Propriedades do componente
- * @property {HTMLElement} [dom] - Elemento DOM associado
- * @property {Fiber} [parent] - Fiber pai
- * @property {Fiber} [child] - Primeiro fiber filho
- * @property {Fiber} [sibling] - Próximo fiber irmão
- * @property {Fiber} [alternate] - Fiber da renderização anterior
- * @property {string} [effectTag] - Tag indicando tipo de efeito
- * @property {Array} [hooks] - Hooks do componente funcional
+ * @property {Function|string} type - Component type or HTML tag
+ * @property {Object} props - Component properties
+ * @property {HTMLElement} [dom] - Associated DOM element
+ * @property {Fiber} [parent] - Parent fiber
+ * @property {Fiber} [child] - First child fiber
+ * @property {Fiber} [sibling] - Next sibling fiber
+ * @property {Fiber} [alternate] - Fiber from the previous render
+ * @property {string} [effectTag] - Tag indicating the type of effect
+ * @property {Array} [hooks] - Hooks of the function component
  */
